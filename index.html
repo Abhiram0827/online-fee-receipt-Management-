@@ -1,0 +1,3027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Fee Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* --- STYLES MERGED FROM HOMEPAGE --- */
+        @keyframes fadeInUp {
+          0% {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .fade-in {
+          opacity: 0;
+          animation: fadeInUp 2s ease forwards;
+        }
+        .fade-in-delayed {
+          opacity: 0;
+          animation: fadeInUp 2s ease forwards 1s; /* start 1s later */
+        }
+        .video-bg {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          z-index: -2;
+        }
+        .overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.4);
+          z-index: -1;
+        }
+        /* --- ORIGINAL APPLICATION STYLES --- */
+        .receipt-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e2e8f0;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #fff; /* White spinner for dark buttons */
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin-left: 8px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .year-section {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background-color: #fff;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+        .page-content {
+            display: none;
+        }
+        .page-content.active {
+            display: block;
+        }
+        .tab-button.active {
+            border-color: #3B82F6; /* blue-500 */
+            color: #2563EB; /* blue-600 */
+            font-weight: 600;
+        }
+        .year-button.active {
+            background-color: #3B82F6; /* blue-500 */
+            color: white;
+        }
+        .admin-tab-button {
+            padding-top: 0.75rem; /* py-3 */
+            padding-bottom: 0.75rem; /* py-3 */
+            padding-left: 1.5rem; /* px-6 */
+            padding-right: 1.5rem; /* px-6 */
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 500; /* font-medium */
+            color: #4B5563; /* text-gray-700 */
+            border-bottom-width: 2px;
+            border-color: transparent;
+            transition-property: color, border-color;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+        .admin-tab-button:hover {
+            color: #2563EB; /* hover:text-blue-600 */
+            border-color: #2563EB; /* hover:border-blue-600 */
+        }
+        .admin-tab-button:focus {
+            outline: none;
+        }
+        .admin-tab-button.active {
+            border-color: #3B82F6; /* border-blue-500 */
+            color: #2563EB; /* text-blue-600 */
+            font-weight: 600; /* font-semibold */
+        }
+        .text-shadow {
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div id="homepage-section" class="relative min-h-screen w-full flex flex-col items-center justify-start pt-24 pb-12 text-white overflow-hidden">
+        <video autoplay muted loop playsinline class="video-bg">
+          <source src="poster.mp4" type="video/mp4">
+        </video>
+        <div class="overlay"></div>
+        <div class="absolute top-6 right-6 z-10">
+          <button onclick="showLogin()" class="px-6 py-2 bg-white/20 text-white font-semibold rounded-lg backdrop-blur-sm hover:bg-white/30 transition-all duration-300 shadow-lg">
+            Login / Portal
+          </button>
+        </div>
+        <div class="text-center space-y-6 max-w-4xl mx-auto flex flex-col items-center z-10">
+          <img src="logo.png" alt="College Logo"
+               class="fade-in mx-auto h-32 w-32 md:h-40 md:w-40 object-contain rounded-full shadow-2xl border-4 border-white/20">
+          <h1 class="fade-in-delayed text-4xl md:text-5xl lg:text-6xl font-bold uppercase text-shadow">
+            AMRITA SAI INSTITUTE OF SCIENCE AND TECHNOLOGY
+          </h1>
+          <p class="fade-in-delayed text-lg text-gray-200 mt-4">
+            Please use the Login/Portal button above to continue.
+          </p>
+        </div>
+    </div>
+
+    <div id="login-section" class="hidden min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
+            <div>
+                <img src="https://www.kindpng.com/picc/m/49-492745_amrita-sai-institute-of-science-technology-ateneo-de.png" alt="College logo" class="mx-auto h-20 w-auto">
+                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                    College Fee Portal
+                </h2>
+            </div>
+            <form class="mt-8 space-y-6" onsubmit="handleLogin(event)">
+                <div class="rounded-md shadow-sm space-y-4">
+                    <div>
+                        <label for="login-id" class="block text-sm font-medium text-gray-700">College ID / Username</label>
+                        <input id="login-id" name="login-id" type="text" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="login-password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input id="login-password" name="login-password" type="password" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+                <div id="login-error" class="text-red-500 text-sm text-center hidden"></div>
+
+                <div>
+                    <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <span id="login-btn-text">Sign in</span>
+                        <div id="login-spinner" class="loading-spinner hidden"></div>
+                    </button>
+                </div>
+            </form>
+             <div class="text-center text-sm text-gray-600 space-y-2">
+                <p>
+                    <a href="#" onclick="openForgotPasswordModal();" class="text-blue-600 hover:text-blue-800">Forgot Password?</a>
+                </p>
+                <p>
+                    Don't have an account? <a href="#" onclick="openSignupModal();" class="text-blue-600 hover:text-blue-800">Sign Up</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="signup-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
+        <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-extrabold text-gray-900">Register New Student</h2>
+                <button onclick="closeSignupModal()" class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+            </div>
+            <form class="mt-8 space-y-6" onsubmit="handleSignup(event)">
+                <div>
+                    <label for="signup-college-id" class="block text-sm font-medium text-gray-700">College ID</label>
+                    <input id="signup-college-id" name="signup-college-id" type="text" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="signup-name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                    <input id="signup-name" name="signup-name" type="text" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="signup-course" class="block text-sm font-medium text-gray-700">Course</label>
+                    <input id="signup-course" name="signup-course" type="text" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="signup-phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                    <input id="signup-phone" name="signup-phone" type="tel" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="signup-email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                    <input id="signup-email" name="signup-email" type="email" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="signup-password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <input id="signup-password" name="signup-password" type="password" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div id="signup-error" class="text-red-500 text-sm text-center hidden"></div>
+                <div>
+                    <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                        <span id="signup-btn-text">Register</span>
+                        <div id="signup-spinner" class="loading-spinner hidden"></div>
+                    </button>
+                </div>
+            </form>
+            <p class="text-center text-gray-600 text-sm">
+                Already have an account? <a href="#" onclick="closeSignupModal();" class="text-blue-600 hover:text-blue-800">Sign in</a>
+            </p>
+        </div>
+    </div>
+
+    <div id="forgot-password-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
+        <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-extrabold text-gray-900">Account Recovery</h2>
+                <button onclick="closeForgotPasswordModal()" class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+            </div>
+            <form class="mt-8 space-y-6" onsubmit="handleForgotPassword(event)">
+                <input type="hidden" id="recovery-type" value="password">
+                <div>
+                    <label for="forgot-id" class="block text-sm font-medium text-gray-700">Enter your College ID</label>
+                    <p class="mt-2 text-xs text-gray-500">An OTP will be sent to your registered phone number and email address.</p>
+                    <input id="forgot-id" name="forgot-id" type="text" required placeholder="Your College ID" class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div id="forgot-error" class="text-red-500 text-sm text-center hidden"></div>
+                <div id="forgot-success" class="text-green-600 text-sm text-center hidden"></div>
+                <div>
+                    <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <span id="forgot-btn-text">Send OTP</span>
+                        <div id="forgot-spinner" class="loading-spinner hidden"></div>
+                    </button>
+                </div>
+            </form>
+            <p class="text-center text-gray-600 text-sm">Remember your password? <a href="#" onclick="closeForgotPasswordModal();" class="text-blue-600 hover:text-blue-800">Sign in</a></p>
+        </div>
+    </div>
+
+    <div id="otp-reset-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
+        <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-extrabold text-gray-900">Reset Your Password</h2>
+                <button onclick="closeOtpResetModal()" class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+            </div>
+            <form class="mt-8 space-y-6" onsubmit="handleOtpReset(event)">
+                <input type="hidden" id="reset-college-id" name="reset-college-id">
+                <div>
+                    <label for="reset-otp" class="block text-sm font-medium text-gray-700">Enter OTP</label>
+                    <input id="reset-otp" name="reset-otp" type="text" required placeholder="6-Digit OTP from Email/SMS" class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="reset-new-password" class="block text-sm font-medium text-gray-700">New Password</label>
+                    <input id="reset-new-password" name="reset-new-password" type="password" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div id="otp-reset-error" class="text-red-500 text-sm text-center hidden"></div>
+                <div id="otp-reset-success" class="text-green-600 text-sm text-center hidden"></div>
+                <div>
+                    <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <span id="otp-reset-btn-text">Reset Password</span>
+                        <div id="otp-reset-spinner" class="loading-spinner hidden"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="update-dues-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden overflow-y-auto py-10">
+        <div class="max-w-lg w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-extrabold text-gray-900">Update Student Dues</h2>
+                <button onclick="closeUpdateDuesModal()" class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+            </div>
+            <form class="mt-8 space-y-6" onsubmit="handleUpdateDues(event)">
+                <input type="hidden" id="update-student-id">
+                
+                <div>
+                    <label for="update-academic-year" class="block text-sm font-medium text-gray-700">Academic Year</label>
+                    <select id="update-academic-year" name="update-academic-year" class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="1">1st Year</option>
+                        <option value="2">2nd Year</option>
+                        <option value="3">3rd Year</option>
+                        <option value="4">4th Year</option>
+                    </select>
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-sm font-medium text-gray-700">Fee Structure (Amount Due)</label>
+                        <div id="fee-structure-controls">
+                            <button type="button" id="save-fee-structure-btn" onclick="toggleFeeEditor(false)" class="px-3 py-1 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700">Save</button>
+                            <button type="button" id="edit-fee-structure-btn" onclick="toggleFeeEditor(true)" class="hidden px-3 py-1 text-sm text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">Edit</button>
+                        </div>
+                    </div>
+                    <div id="fee-structure-editor" class="space-y-3 p-4 bg-gray-50 border rounded-md">
+                        </div>
+                </div>
+
+                <div class="border-t pt-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Record a New Payment</h3>
+                    <div>
+                        <label for="update-payment-type" class="block text-sm font-medium text-gray-700">Type of Payment</label>
+                        <select id="update-payment-type" name="update-payment-type" class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">No Payment</option>
+                            <option value="Registration Fee">Registration Fee</option>
+                            <option value="Special Fee">Special Fee</option>
+                            <option value="Tuition Fee">Tuition Fee</option>
+                            <option value="Transportation Fee">Transportation Fee</option>
+                            <option value="Hostel fee">Hostel fee</option>
+                            <option value="Other fee">Other fee</option>
+                        </select>
+                    </div>
+                    <div class="mt-4">
+                        <label for="update-amount-paid" class="block text-sm font-medium text-gray-700">Amount to Pay Now (₹)</label>
+                        <input id="update-amount-paid" name="update-amount-paid" type="number" value="0" min="0" class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+
+                <div id="update-dues-error" class="text-red-500 text-sm text-center hidden"></div>
+                <div>
+                    <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <span id="update-dues-btn-text">Update Fees & Payment</span>
+                        <div id="update-dues-spinner" class="loading-spinner hidden"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="edit-payment-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
+        <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-extrabold text-gray-900">Edit Payment Record</h2>
+                <button onclick="closeEditPaymentModal()" class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+            </div>
+            <form class="mt-8 space-y-6" onsubmit="handleEditPayment(event)">
+                <input type="hidden" id="edit-payment-id">
+                <input type="hidden" id="edit-original-student-id">
+                <input type="hidden" id="edit-original-amount">
+                <input type="hidden" id="edit-original-year">
+                <div>
+                    <label for="edit-student-id" class="block text-sm font-medium text-gray-700">Student Roll No (College ID)</label>
+                    <input id="edit-student-id" name="edit-student-id" type="text" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="edit-payment-type" class="block text-sm font-medium text-gray-700">Payment Type</label>
+                    <select id="edit-payment-type" name="edit-payment-type" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </select>
+                </div>
+                <div>
+                    <label for="edit-amount" class="block text-sm font-medium text-gray-700">Amount (₹)</label>
+                    <input id="edit-amount" name="edit-amount" type="number" required min="0" class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div id="edit-payment-error" class="text-red-500 text-sm text-center hidden"></div>
+                <div>
+                    <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <span id="edit-payment-btn-text">Update Payment</span>
+                        <div id="edit-payment-spinner" class="loading-spinner hidden"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="change-admin-credentials-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
+        <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-extrabold text-gray-900">Change Admin Credentials</h2>
+                <button onclick="closeChangeAdminCredentialsModal()" class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+            </div>
+            <form class="mt-8 space-y-6" onsubmit="handleChangeAdminCredentials(event)">
+                <div>
+                    <label for="current-admin-username" class="block text-sm font-medium text-gray-700">Current Admin Username</label>
+                    <input id="current-admin-username" name="current-admin-username" type="text" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="current-admin-password" class="block text-sm font-medium text-gray-700">Current Admin Password</label>
+                    <input id="current-admin-password" name="current-admin-password" type="password" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="border-t border-gray-200 pt-6 mt-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">New Credentials</h3>
+                    <div>
+                        <label for="new-admin-username" class="block text-sm font-medium text-gray-700">New Admin Username</label>
+                        <input id="new-admin-username" name="new-admin-username" type="text" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mt-4">
+                        <label for="new-admin-password" class="block text-sm font-medium text-gray-700">New Admin Password</label>
+                        <input id="new-admin-password" name="new-admin-password" type="password" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mt-4">
+                        <label for="confirm-new-admin-password" class="block text-sm font-medium text-gray-700">Confirm New Admin Password</label>
+                        <input id="confirm-new-admin-password" name="confirm-new-admin-password" type="password" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+                <div id="change-admin-error" class="text-red-500 text-sm text-center hidden"></div>
+                <div>
+                    <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <span id="change-admin-btn-text">Update Credentials</span>
+                        <div id="change-admin-spinner" class="loading-spinner hidden"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="change-mh-credentials-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
+        <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-extrabold text-gray-900">Change Management Head Credentials</h2>
+                <button onclick="closeChangeMHCredentialsModal()" class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+            </div>
+            <form class="mt-8 space-y-6" onsubmit="handleChangeMHCredentials(event)">
+                <div>
+                    <label for="current-mh-username" class="block text-sm font-medium text-gray-700">Current Username</label>
+                    <input id="current-mh-username" name="current-mh-username" type="text" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="current-mh-password" class="block text-sm font-medium text-gray-700">Current Password</label>
+                    <input id="current-mh-password" name="current-mh-password" type="password" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="border-t border-gray-200 pt-6 mt-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">New Credentials</h3>
+                    <div>
+                        <label for="new-mh-username" class="block text-sm font-medium text-gray-700">New Username</label>
+                        <input id="new-mh-username" name="new-mh-username" type="text" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mt-4">
+                        <label for="new-mh-password" class="block text-sm font-medium text-gray-700">New Password</label>
+                        <input id="new-mh-password" name="new-mh-password" type="password" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mt-4">
+                        <label for="confirm-new-mh-password" class="block text-sm font-medium text-gray-700">Confirm New Password</label>
+                        <input id="confirm-new-mh-password" name="confirm-new-mh-password" type="password" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+                <div id="change-mh-error" class="text-red-500 text-sm text-center hidden"></div>
+                <div>
+                    <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <span id="change-mh-btn-text">Update Credentials</span>
+                        <div id="change-mh-spinner" class="loading-spinner hidden"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="change-dept-credentials-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
+        <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-extrabold text-gray-900">Change Department Credentials</h2>
+                <button onclick="closeChangeDeptCredentialsModal()" class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+            </div>
+            <form class="mt-8 space-y-6" onsubmit="handleChangeDeptCredentials(event)">
+                <div>
+                    <label for="current-dept-username" class="block text-sm font-medium text-gray-700">Current Username</label>
+                    <input id="current-dept-username" name="current-dept-username" type="text" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="current-dept-password" class="block text-sm font-medium text-gray-700">Current Password</label>
+                    <input id="current-dept-password" name="current-dept-password" type="password" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="border-t border-gray-200 pt-6 mt-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">New Credentials</h3>
+                    <div>
+                        <label for="new-dept-username" class="block text-sm font-medium text-gray-700">New Username</label>
+                        <input id="new-dept-username" name="new-dept-username" type="text" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mt-4">
+                        <label for="new-dept-password" class="block text-sm font-medium text-gray-700">New Password</label>
+                        <input id="new-dept-password" name="new-dept-password" type="password" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="mt-4">
+                        <label for="confirm-new-dept-password" class="block text-sm font-medium text-gray-700">Confirm New Password</label>
+                        <input id="confirm-new-dept-password" name="confirm-new-dept-password" type="password" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+                <div id="change-dept-error" class="text-red-500 text-sm text-center hidden"></div>
+                <div>
+                    <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <span id="change-dept-btn-text">Update Credentials</span>
+                        <div id="change-dept-spinner" class="loading-spinner hidden"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="mh-download-report-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
+        <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-extrabold text-gray-900">Download Pending Fee Report</h2>
+                <button onclick="closeMhDownloadModal()" class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+            </div>
+            <div class="mt-8 space-y-6">
+                <div>
+                    <label for="mh-report-dept-selector" class="block text-sm font-medium text-gray-700">Select a Department</label>
+                    <select id="mh-report-dept-selector" name="mh-report-dept-selector" class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </select>
+                </div>
+                <div>
+                    <button onclick="executePendingReportDownload()" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        Download PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboard-section" class="hidden min-h-screen bg-gray-100">
+        <header class="bg-white shadow">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                <div class="flex items-center">
+                    <img src="./image_c6425e.jpg" alt="College logo" class="h-12 mr-3">
+                    <h1 class="text-xl font-semibold text-gray-900">Fee Management System</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="user-name" class="text-gray-700"></span>
+                    <button onclick="logout()" class="px-4 py-2 text-sm text-white bg-red-500 rounded-md hover:bg-red-600 transition-colors">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="mb-8 bg-white shadow rounded-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Welcome back, <span id="display-user-name"></span>!</h2>
+                <p class="text-gray-600" id="welcome-message-subtitle">Track your fee payments and download receipts for your records.</p>
+            </div>
+
+            <div id="student-dashboard-content" class="hidden">
+                <div class="flex border-b border-gray-200 mb-6">
+                    <button id="dues-tab" onclick="showStudentPage('dues')" class="tab-button py-3 px-6 text-lg font-medium text-gray-700 border-b-2 border-transparent hover:text-blue-600 hover:border-blue-600 focus:outline-none transition-colors active">
+                        Fee Dues
+                    </button>
+                    <button id="receipts-tab" onclick="showStudentPage('receipts')" class="tab-button py-3 px-6 text-lg font-medium text-gray-700 border-b-2 border-transparent hover:text-blue-600 hover:border-blue-600 focus:outline-none transition-colors">
+                        Receipts
+                    </button>
+                </div>
+
+                <div id="student-dues-page" class="page-content active">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white shadow rounded-lg p-6">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">Overall Total Fees</p>
+                                    <p class="text-3xl font-semibold text-gray-900">₹<span id="total-fees">0</span></p>
+                                </div>
+                                <div class="p-3 bg-blue-100 rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m-1-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white shadow rounded-lg p-6">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">Overall Paid Amount</p>
+                                    <p class="text-3xl font-semibold text-green-600">₹<span id="paid-amount">0</span></p>
+                                    <p class="text-xs text-gray-500 mt-1">Last payment: <span id="last-payment-date">N/A</span></p>
+                                </div>
+                                <div class="p-3 bg-green-100 rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white shadow rounded-lg p-6">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">Overall Pending Amount</p>
+                                    <p class="text-3xl font-semibold text-red-600">₹<span id="due-amount">0</span></p>
+                                    <p class="text-xs text-gray-500 mt-1">Payment due by: <span id="due-date">N/A</span></p>
+                                </div>
+                                <div class="p-3 bg-red-100 rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-8 bg-white shadow rounded-lg p-6">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Overall Payment Progress</span>
+                            <span class="text-sm font-medium text-gray-700" id="payment-percentage">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill bg-blue-600" id="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <div class="flex justify-between mt-2">
+                            <span class="text-xs text-gray-500">Paid: ₹<span id="progress-paid">0</span></span>
+                            <span class="text-xs text-gray-500">Total: ₹<span id="progress-total">0</span></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-8 bg-white shadow rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Yearly Fee Summary</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Academic Year</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Fee (₹)</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount Paid (₹)</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pending Amount (₹)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="fee-structure-table-body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="bg-white shadow rounded-lg p-6 mb-8">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Fee Details by Academic Year</h3>
+                        <div class="flex flex-wrap gap-2 mb-4" id="dues-year-selector">
+                        </div>
+                        <div id="selected-year-dues-summary" class="year-section">
+                            <p class="text-gray-500 text-center">Select an academic year to view its detailed fee breakdown.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white shadow rounded-lg p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Payment Summary</h3>
+                            </div>
+                        
+                        <div class="space-y-4" id="payment-history-container">
+                            </div>
+                    </div>
+                </div>
+
+                <div id="student-receipts-page" class="page-content">
+                    <div class="bg-white shadow rounded-lg p-6 mb-8">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Receipts by Academic Year</h3>
+                        <div class="flex flex-wrap gap-2 mb-4" id="receipts-year-selector">
+                        </div>
+                        <div id="selected-year-receipts-container" class="space-y-4">
+                            <p class="text-gray-500 text-center">Select an academic year to view its receipts.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="admin-dashboard-content" class="hidden">
+                <div class="flex border-b border-gray-200 mb-6">
+                    <button id="admin-students-tab" onclick="showAdminPage('admin-students')" class="admin-tab-button active">
+                        Manage Students
+                    </button>
+                    <button id="admin-daily-transactions-tab" onclick="showAdminPage('admin-daily-transactions')" class="admin-tab-button">
+                        Daily Credits/Debits
+                    </button>
+                </div>
+
+                <div id="admin-students-page" class="page-content active">
+                    <div class="bg-white shadow rounded-lg p-6 mb-8">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Student Due Fee Update & Receipts Generation</h3>
+                        <p class="text-gray-700 mb-4">Search for students to manage their dues and receipts.</p>
+                        
+                        <div class="mb-4 flex flex-wrap gap-3">
+                            <button onclick="openChangeAdminCredentialsModal()" class="px-4 py-2 text-sm text-white bg-gray-700 rounded-md hover:bg-gray-800 transition-colors">
+                                Change Admin Credentials
+                            </button>
+                        </div>
+
+                        <div class="mb-6">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-2">Search Students</h4>
+                            <div class="flex space-x-3">
+                                <input type="text" id="student-search-input" placeholder="Search by College ID or Name"
+                                    class="flex-1 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <button onclick="searchStudents()" class="px-4 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                                    Search
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="search-results-container" class="mt-4">
+                            <p class="text-gray-500 text-center py-4" id="initial-search-message">Search for students to manage their dues and receipts.</p>
+                        </div>
+                    </div>
+
+                    <div id="admin-student-details-card" class="bg-white shadow rounded-lg p-6 hidden">
+                    </div>
+                </div>
+
+                <div id="admin-daily-transactions-page" class="page-content">
+                    <div class="bg-white shadow rounded-lg p-6 mb-8">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Daily Credits / Debits Update for Management</h3>
+                        <form class="space-y-6" onsubmit="handleAddDailyTransaction(event)">
+                            <div>
+                                <label for="transaction-date" class="block text-sm font-medium text-gray-700">Date</label>
+                                <input type="date" id="transaction-date" name="transaction-date" required class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Type</label>
+                                <div class="mt-1 flex space-x-4">
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" name="transaction-type" value="credit" class="form-radio text-blue-600 h-4 w-4" checked>
+                                        <span class="ml-2 text-gray-700">Credit</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" name="transaction-type" value="debit" class="form-radio text-red-600 h-4 w-4">
+                                        <span class="ml-2 text-gray-700">Debit</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="transaction-amount" class="block text-sm font-medium text-gray-700">Amount (₹)</label>
+                                <input type="number" id="transaction-amount" name="transaction-amount" required min="0" class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="transaction-description" class="block text-sm font-medium text-gray-700">Description</label>
+                                <textarea id="transaction-description" name="transaction-description" rows="3" class="mt-1 p-3 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                            </div>
+                            <div id="daily-transaction-error" class="text-red-500 text-sm text-center hidden"></div>
+                            <div>
+                                <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                    <span id="add-transaction-btn-text">Add Transaction</span>
+                                    <div id="add-transaction-spinner" class="loading-spinner hidden"></div>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="bg-white shadow rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Current Day's Summary</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                                <p class="text-sm font-medium text-gray-600">Today's Credits</p>
+                                <p class="text-2xl font-semibold text-blue-700">₹<span id="today-collections-amount">0</span></p>
+                            </div>
+                            <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                                <p class="text-sm font-medium text-gray-600">Today's Debits</p>
+                                <p class="text-2xl font-semibold text-red-700">₹<span id="today-detections-amount">0</span></p>
+                            </div>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                            <p class="text-sm font-medium text-gray-600">Today's Net Amount</p>
+                            <p class="text-3xl font-semibold text-green-800">₹<span id="today-net-amount">0</span></p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white shadow rounded-lg p-6 mt-6">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-3">All Daily Transactions (Admin View)</h4>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount (₹)</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="daily-transactions-table-body-admin">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="management-head-dashboard-content" class="hidden">
+                <div class="flex border-b border-gray-200 mb-6">
+                    <button id="mh-overview-tab" onclick="showManagementPage('mh-overview')" class="admin-tab-button active">
+                        Financial Overview
+                    </button>
+                    <button id="mh-students-tab" onclick="showManagementPage('mh-students')" class="admin-tab-button">
+                        Student Management
+                    </button>
+                    <button id="mh-pending-fees-tab" onclick="showManagementPage('mh-pending-fees')" class="admin-tab-button">
+                        Pending Fee Report
+                    </button>
+                </div>
+
+                <div id="mh-overview-page" class="page-content active">
+                    <div class="bg-white shadow rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Financial Overview</h3>
+                        <div class="mb-4">
+                            <button onclick="openChangeMHCredentialsModal()" class="px-4 py-2 text-sm text-white bg-gray-700 rounded-md hover:bg-gray-800 transition-colors">
+                                Change My Credentials
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div class="bg-green-100 p-4 rounded-lg border border-green-300">
+                                <p class="text-sm font-medium text-gray-700">Today's Net Amount</p>
+                                <p class="text-3xl font-semibold text-green-800">₹<span id="mh-today-net-amount">0</span></p>
+                            </div>
+                            <div class="bg-red-100 p-4 rounded-lg border border-red-300">
+                                <p class="text-sm font-medium text-gray-700">Today's Debits</p>
+                                <p class="text-3xl font-semibold text-red-800">₹<span id="mh-today-debits-amount">0</span></p>
+                            </div>
+                            <div class="bg-blue-100 p-4 rounded-lg border border-blue-300">
+                                <p class="text-sm font-medium text-gray-700">Overall Running Total</p>
+                                <p class="text-3xl font-semibold text-blue-800">₹<span id="mh-overall-running-total">0</span></p>
+                            </div>
+                        </div>
+                        <div class="border-t border-gray-200 pt-6">
+                             <div class="mb-6 flex flex-wrap items-end gap-4">
+                                <div>
+                                    <label for="mh-year-select" class="block text-sm font-medium text-gray-700">Year</label>
+                                    <select id="mh-year-select" class="mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+                                </div>
+                                <div>
+                                    <label for="mh-month-select" class="block text-sm font-medium text-gray-700">Month</label>
+                                    <select id="mh-month-select" class="mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+                                </div>
+                                <div>
+                                    <label for="mh-day-select" class="block text-sm font-medium text-gray-700">Day</label>
+                                    <select id="mh-day-select" class="mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+                                </div>
+                                <div>
+                                    <button id="mh-get-data-btn" class="px-6 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700">Get Data</button>
+                                </div>
+                            </div>
+                            <div id="mh-detailed-stats-container" class="hidden">
+                                <div class="grid grid-cols-1 gap-4 mb-6">
+                                    <div class="bg-purple-100 p-4 rounded-lg border border-purple-300">
+                                        <p class="text-sm font-medium text-gray-700">Net for Selected Period</p>
+                                        <p class="text-3xl font-semibold text-purple-800">₹<span id="mh-period-net-amount">0</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="mh-transactions-table-container">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-3">Daily Transactions (Selected Period)</h4>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount (₹)</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200" id="daily-transactions-table-body-mh"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="mh-students-page" class="page-content">
+                    <div class="bg-white shadow rounded-lg p-6 mb-8">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Student Payment Correction</h3>
+                        <p class="text-gray-700 mb-4">Search for a student to view their payment history and correct any erroneous entries by editing them.</p>
+                        <div class="mb-6">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-2">Search Students</h4>
+                            <div class="flex space-x-3">
+                                <input type="text" id="mh-student-search-input" placeholder="Search by College ID or Name"
+                                    class="flex-1 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <button onclick="searchStudents(true)" class="px-4 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                                    Search
+                                </button>
+                            </div>
+                        </div>
+                        <div id="mh-search-results-container" class="mt-4">
+                            <p class="text-gray-500 text-center py-4">Search for students to manage their payments.</p>
+                        </div>
+                    </div>
+                    <div id="mh-student-details-card" class="bg-white shadow rounded-lg p-6 hidden"></div>
+                </div>
+
+                <div id="mh-pending-fees-page" class="page-content">
+                    <div class="bg-white shadow rounded-lg p-6">
+                        <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-900">Pending Fee Payments Report</h3>
+                                <p class="text-gray-600 mt-1">This report includes all current and passed-out students with an outstanding balance.</p>
+                            </div>
+                            <button id="download-pending-report-btn" onclick="openMhDownloadModal()" class="px-4 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                                Download Pending Report
+                            </button>
+                        </div>
+
+                        <div class="mb-4">
+    <label for="mh-pending-search" class="block text-sm font-medium text-gray-700">Search Student</label>
+    <input type="text" id="mh-pending-search" placeholder="Search by Name or ID" 
+           class="mt-1 p-2 border border-gray-300 rounded-md w-full md:w-1/3" 
+           oninput="renderPendingFeesTable()">
+</div>
+
+                        <div class="bg-red-100 border-l-4 border-red-500 text-red-800 p-4 mb-6 rounded-r-lg" role="alert">
+                            <p class="font-bold text-lg">Total Pending Amount</p>
+                            <p class="text-3xl font-semibold" id="total-pending-amount-display">₹0</p>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="mh-academic-year-filter" class="block text-sm font-medium text-gray-700">Filter by Academic Year</label>
+                            <select id="mh-academic-year-filter" class="mt-1 p-2 border border-gray-300 rounded-md w-full md:w-1/3">
+                                <option value="all">All Years</option>
+                                <option value="1">1st Year</option>
+                                <option value="2">2nd Year</option>
+                                <option value="3">3rd Year</option>
+                                <option value="4">4th Year</option>
+                                <option value="passed_out">Passed Out</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="mh-department-filter" class="block text-sm font-medium text-gray-700">Filter by Department</label>
+                            <select id="mh-department-filter" class="mt-1 p-2 border border-gray-300 rounded-md w-full md:w-1/3">
+                                </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="pending-fee-type-filter" class="block text-sm font-medium text-gray-700">Filter by Fee Type</label>
+                            <select id="pending-fee-type-filter" class="mt-1 p-2 border border-gray-300 rounded-md w-full md:w-1/3">
+                                <option value="all">All Fee Types</option>
+                            </select>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student Name</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">College ID</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Year</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fee Year</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fee Type</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paid Amount (₹)</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pending Amount (₹)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="pending-fees-table-body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+           </div>
+           
+            <div id="department-dashboard-content" class="hidden">
+                <div class="flex border-b border-gray-200 mb-6">
+                    <button id="department-pending-fees-tab" class="admin-tab-button active">
+                        Pending Fee Report
+                    </button>
+                </div>
+                
+                <div id="department-pending-fees-page" class="page-content active">
+                    <div class="bg-white shadow rounded-lg p-6">
+                        <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-900">Department Pending Fee Report</h3>
+                                <p class="text-gray-600 mt-1">This report shows all outstanding fee payments for students in your department.</p>
+                            </div>
+                            <div class="flex flex-wrap gap-4">
+                                <button onclick="openChangeDeptCredentialsModal()" class="px-4 py-2 text-sm text-white bg-gray-700 rounded-md hover:bg-gray-800 transition-colors">
+                                    Change My Credentials
+                                </button>
+                                <button onclick="downloadDepartmentPendingReport()" class="px-4 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                                    Download Report (PDF)
+                                </button>
+                                <button onclick="downloadDepartmentPendingCSV()" class="px-4 py-2 text-sm text-white bg-teal-600 rounded-md hover:bg-teal-700 transition-colors">
+                                    Download Report (CSV)
+                                </button>
+                            </div>
+                            </div>
+                            <div class="mb-4">
+    <label for="dept-pending-search" class="block text-sm font-medium text-gray-700">Search Student</label>
+    <input type="text" id="dept-pending-search" placeholder="Search by Name or ID" 
+           class="mt-1 p-2 border border-gray-300 rounded-md w-full md:w-1/3" 
+           oninput="renderDepartmentPendingFeesTable()">
+</div>
+                        
+                        <div class="mb-4">
+                            <label for="department-academic-year-filter" class="block text-sm font-medium text-gray-700">Filter by Academic Year</label>
+                            <select id="department-academic-year-filter" class="mt-1 p-2 border border-gray-300 rounded-md w-full md:w-1/3">
+                                <option value="all">All Years</option>
+                                <option value="1">1st Year</option>
+                                <option value="2">2nd Year</option>
+                                <option value="3">3rd Year</option>
+                                <option value="4">4th Year</option>
+                                <option value="passed_out">Passed Out</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="department-pending-fee-type-filter" class="block text-sm font-medium text-gray-700">Filter by Fee Type</label>
+                            <select id="department-pending-fee-type-filter" class="mt-1 p-2 border border-gray-300 rounded-md w-full md:w-1/3">
+                                <option value="all">All Fee Types</option>
+                            </select>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student Name</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">College ID</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Year</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fee Year</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fee Type</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paid Amount (₹)</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pending Amount (₹)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="department-pending-fees-table-body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+           </div>
+        </main>
+    </div>
+
+
+<script>
+        // --- API & State Configuration ---
+        const API_URL = 'http://localhost:3000'; 
+        const ALL_FEE_TYPES = ["Tuition Fee", "Registration Fee", "Special Fee", "Transportation Fee", "Hostel fee", "Other fee"];
+        const DEPARTMENT_LIST = [
+            { id: 'ALL', name: 'All Departments' },
+            { id: 'S&H', name: 'Science & Humanities' },
+            { id: 'CSE', name: 'Computer Science and Engineering' },
+            { id: 'CSD', name: 'Computer Science and Data Science' },
+            { id: 'CSM', name: 'Computer Science and AI/ML' },
+            { id: 'ECE', name: 'Electronics and Communication Engineering' },
+            { id: 'MECHANICAL', name: 'Mechanical Engineering' },
+            { id: 'CIVIL', name: 'Civil Engineering' },
+            { id: 'EEE', name: 'Electrical and Electronics Engineering' },
+            { id: 'DIPLOMA', name: 'Diploma' },
+        ];
+
+
+        let currentUser = null; 
+        let allStudentsCache = []; 
+        let currentAdminSelectedStudentId = null; 
+        let currentStudentDataCache = null; 
+        let allTransactionsCache = []; 
+        let pendingFeesCache = []; 
+        let departmentPendingFeesCache = [];
+        let monthlyCollectionsChartOverview = null;
+        let pendingByDeptChartOverview = null;
+
+        // --- Helper Functions ---
+        const showSpinner = (btnTextId, spinnerId) => {
+            document.getElementById(btnTextId).style.opacity = '0';
+            document.getElementById(spinnerId).classList.remove('hidden');
+        };
+        const hideSpinner = (btnTextId, spinnerId, defaultText) => {
+            document.getElementById(btnTextId).textContent = defaultText;
+            document.getElementById(btnTextId).style.opacity = '1';
+            document.getElementById(spinnerId).classList.add('hidden');
+        };
+
+        // --- API Call Functions ---
+
+        // 1. Authentication
+        async function handleLogin(event) {
+            event.preventDefault();
+            const loginId = document.getElementById('login-id').value.trim();
+            const password = document.getElementById('login-password').value;
+            const errorDiv = document.getElementById('login-error');
+            errorDiv.classList.add('hidden');
+            showSpinner('login-btn-text', 'login-spinner');
+
+            try {
+                const response = await fetch(`${API_URL}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ loginId, password }),
+                });
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Login failed.');
+                }
+
+                currentUser = data.data;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('dashboard-section').classList.remove('hidden');
+                await updateDashboardUI();
+
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.classList.remove('hidden');
+            } finally {
+                hideSpinner('login-btn-text', 'login-spinner', 'Sign in');
+            }
+        }
+
+        async function handleSignup(event) {
+            event.preventDefault();
+            const collegeId = document.getElementById('signup-college-id').value.trim();
+            const name = document.getElementById('signup-name').value.trim();
+            const course = document.getElementById('signup-course').value.trim();
+            const phone = document.getElementById('signup-phone').value.trim();
+            const email = document.getElementById('signup-email').value.trim(); 
+            const password = document.getElementById('signup-password').value;
+            const errorDiv = document.getElementById('signup-error');
+            errorDiv.classList.add('hidden');
+            showSpinner('signup-btn-text', 'signup-spinner');
+
+            try {
+                const response = await fetch(`${API_URL}/api/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ collegeId, name, course, phone, email, password }),
+                });
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Registration failed.');
+                }
+                
+                alert(data.message);
+                closeSignupModal();
+                document.getElementById('login-id').value = collegeId;
+
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.classList.remove('hidden');
+            } finally {
+                hideSpinner('signup-btn-text', 'signup-spinner', 'Register');
+            }
+        }
+        
+        async function handleForgotPassword(event) {
+            event.preventDefault();
+            const recoveryType = document.getElementById('recovery-type').value;
+            const identifier = document.getElementById('forgot-id').value.trim();
+            const errorDiv = document.getElementById('forgot-error');
+            const successDiv = document.getElementById('forgot-success');
+            errorDiv.classList.add('hidden');
+            successDiv.classList.add('hidden');
+            showSpinner('forgot-btn-text', 'forgot-spinner');
+
+            try {
+                const response = await fetch(`${API_URL}/api/recover`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ recoveryType, identifier }),
+                });
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Recovery process failed.');
+                }
+                
+                successDiv.textContent = data.message;
+                successDiv.classList.remove('hidden');
+
+                setTimeout(() => {
+                    closeForgotPasswordModal();
+                    openOtpResetModal(identifier);
+                }, 2500); // Wait 2.5 seconds before switching modals
+
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.classList.remove('hidden');
+            } finally {
+                hideSpinner('forgot-btn-text', 'forgot-spinner', 'Send OTP');
+            }
+        }
+
+         async function handleOtpReset(event) {
+            event.preventDefault();
+            const collegeId = document.getElementById('reset-college-id').value;
+            const otp = document.getElementById('reset-otp').value;
+            const newPassword = document.getElementById('reset-new-password').value;
+            const errorDiv = document.getElementById('otp-reset-error');
+            const successDiv = document.getElementById('otp-reset-success');
+            errorDiv.classList.add('hidden');
+            successDiv.classList.add('hidden');
+            showSpinner('otp-reset-btn-text', 'otp-reset-spinner');
+
+            try {
+                const response = await fetch(`${API_URL}/api/reset-with-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ collegeId, otp, newPassword }),
+                });
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message);
+                }
+
+                successDiv.textContent = data.message;
+                successDiv.classList.remove('hidden');
+
+                setTimeout(() => {
+                    closeOtpResetModal();
+                }, 2000);
+
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.classList.remove('hidden');
+            } finally {
+                hideSpinner('otp-reset-btn-text', 'otp-reset-spinner', 'Reset Password');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            currentUser = null;
+            allStudentsCache = [];
+            currentAdminSelectedStudentId = null;
+            currentStudentDataCache = null;
+            departmentPendingFeesCache = [];
+            
+            document.getElementById('dashboard-section').classList.add('hidden');
+            document.getElementById('login-section').classList.remove('hidden');
+            
+            document.getElementById('login-id').value = '';
+            document.getElementById('login-password').value = '';
+        }
+
+        // 2. Data Fetching
+        async function loadStudentData(collegeId) {
+            try {
+                const response = await fetch(`${API_URL}/api/student/${collegeId}`);
+
+                if (!response.ok) {
+                    let errorMessage = `Server error: ${response.status}`;
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || errorMessage;
+                    } catch (e) {
+                        console.error("Received a non-JSON error response from the server.");
+                    }
+                    throw new Error(errorMessage);
+                }
+                
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new Error("Received an invalid response format from the server.");
+                }
+
+                const data = await response.json();
+                if (!data.success) throw new Error(data.message);
+
+                const student = data.data;
+                currentStudentDataCache = student; 
+
+                let overallTotalFees = 0;
+                Object.values(student.detailedSummary).forEach(yearFees => {
+                    yearFees.forEach(fee => {
+                        overallTotalFees += fee.amountDue;
+                    });
+                });
+                
+                const overallPaidAmount = student.paidAmount;
+                const dueAmount = overallTotalFees - overallPaidAmount;
+
+                document.getElementById('total-fees').textContent = overallTotalFees.toLocaleString('en-IN');
+                document.getElementById('paid-amount').textContent = overallPaidAmount.toLocaleString('en-IN');
+                document.getElementById('due-amount').textContent = dueAmount.toLocaleString('en-IN');
+                document.getElementById('last-payment-date').textContent = student.lastPaymentDate ? new Date(student.lastPaymentDate).toLocaleDateString('en-GB') : 'N/A';
+                document.getElementById('due-date').textContent = student.dueDate ? new Date(student.dueDate).toLocaleDateString('en-GB') : 'N/A';
+                
+                const percentage = overallTotalFees > 0 ? Math.round((overallPaidAmount / overallTotalFees) * 100) : 0;
+                document.getElementById('payment-percentage').textContent = `${percentage}%`;
+                document.getElementById('progress-fill').style.width = `${percentage}%`;
+                document.getElementById('progress-paid').textContent = overallPaidAmount.toLocaleString('en-IN');
+                document.getElementById('progress-total').textContent = overallTotalFees.toLocaleString('en-IN');
+                
+                renderYearlySummaryTable(document.getElementById('fee-structure-table-body'), student.detailedSummary);
+                
+                const feeTypeOrder = ["Tuition Fee", "Transportation Fee", "Hostel fee", "Special Fee", "Registration Fee", "Other fee"];
+                const sortedPayments = [...student.payments].sort((a, b) => {
+                    const indexA = feeTypeOrder.indexOf(a.type);
+                    const indexB = feeTypeOrder.indexOf(b.type);
+                    const effectiveIndexA = indexA === -1 ? feeTypeOrder.length : indexA;
+                    const effectiveIndexB = indexB === -1 ? feeTypeOrder.length : indexB;
+                    return effectiveIndexA - effectiveIndexB;
+                });
+                
+                renderPaymentHistory(document.getElementById('payment-history-container'), sortedPayments, { showDownload: false });
+                
+                return student;
+
+            } catch (error) {
+                console.error("Failed to load student data:", error);
+                alert(`Error: ${error.message}`);
+            }
+        }
+        
+        async function fetchAllStudents() {
+            try {
+                const response = await fetch(`${API_URL}/api/students`);
+                const data = await response.json();
+                if (!data.success) throw new Error(data.message);
+                allStudentsCache = data.data;
+                return allStudentsCache;
+            } catch (error) {
+                console.error("Failed to fetch students:", error);
+                alert(`Error: ${error.message}`);
+                return [];
+            }
+        }
+        
+        async function fetchAllTransactions() {
+             try {
+                const response = await fetch(`${API_URL}/api/transactions`);
+                const data = await response.json();
+                if (!data.success) throw new Error(data.message);
+                allTransactionsCache = data.data;
+                return allTransactionsCache;
+            } catch (error){
+                console.error("Failed to fetch transactions:", error);
+                alert(`Error: ${error.message}`);
+                return [];
+            }
+        }
+        
+        async function fetchPendingFees(academicYear = 'all') {
+            try {
+                const response = await fetch(`${API_URL}/api/management/pending-fees?academicYear=${academicYear}`);
+                const data = await response.json();
+                if (!data.success) throw new Error(data.message);
+                pendingFeesCache = data.data;
+                return pendingFeesCache;
+            } catch (error) {
+                console.error("Failed to fetch pending fees:", error);
+                alert(`Error: ${error.message}`);
+                return [];
+            }
+        }
+
+        // 3. Data Modification
+        async function handleUpdateDues(event) {
+            event.preventDefault();
+            const studentId = document.getElementById('update-student-id').value;
+            const academicYear = document.getElementById('update-academic-year').value;
+            const errorDiv = document.getElementById('update-dues-error');
+            errorDiv.classList.add('hidden');
+            showSpinner('update-dues-btn-text', 'update-dues-spinner');
+
+            const feeStructure = [];
+            const feeEditor = document.getElementById('fee-structure-editor');
+            feeEditor.querySelectorAll('.fee-input-group').forEach(group => {
+                const type = group.querySelector('label').textContent;
+                const amount = parseFloat(group.querySelector('input').value) || 0;
+                feeStructure.push({ type, amount });
+            });
+
+            const payment = {
+                type: document.getElementById('update-payment-type').value,
+                amount: parseFloat(document.getElementById('update-amount-paid').value) || 0
+            };
+            
+            if (payment.amount > 0 && !payment.type) {
+                errorDiv.textContent = 'Please select a payment type if you are recording a payment.';
+                errorDiv.classList.remove('hidden');
+                hideSpinner('update-dues-btn-text', 'update-dues-spinner', 'Update Fees & Payment');
+                return;
+            }
+
+            const payload = { studentId, academicYear: parseInt(academicYear), feeStructure, payment };
+
+            try {
+                const response = await fetch(`${API_URL}/api/student/update-fees`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                const data = await response.json();
+                if (!response.ok || !data.success) throw new Error(data.message);
+
+                alert(data.message);
+                closeUpdateDuesModal();
+                if (currentUser.role === 'admin') {
+                    await showStudentDetailsForAdmin(studentId, { isManagement: false });
+                } else if (currentUser.role === 'management_head') {
+                    await showStudentDetailsForAdmin(studentId, { isManagement: true });
+                }
+                
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.classList.remove('hidden');
+            } finally {
+                hideSpinner('update-dues-btn-text', 'update-dues-spinner', 'Update Fees & Payment');
+            }
+        }
+        
+        async function handleAddDailyTransaction(event) {
+            event.preventDefault();
+            const date = document.getElementById('transaction-date').value;
+            const amount = parseFloat(document.getElementById('transaction-amount').value);
+            const type = document.querySelector('input[name="transaction-type"]:checked').value;
+            const description = document.getElementById('transaction-description').value.trim();
+            const errorDiv = document.getElementById('daily-transaction-error');
+            errorDiv.classList.add('hidden');
+            showSpinner('add-transaction-btn-text', 'add-transaction-spinner');
+
+             try {
+                const response = await fetch(`${API_URL}/api/transactions`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ date, amount, description, type }),
+                });
+                const data = await response.json();
+                if (!response.ok || !data.success) throw new Error(data.message);
+
+                alert(data.message);
+                event.target.reset();
+                
+                await fetchAllTransactions();
+                await renderDailyTransactionsAdminView();
+
+                if (currentUser.role === 'management_head') {
+                    await updateMHGlobalStats();
+                    document.getElementById('mh-get-data-btn').click(); 
+                }
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.classList.remove('hidden');
+            } finally {
+                hideSpinner('add-transaction-btn-text', 'add-transaction-spinner', 'Add Transaction');
+            }
+        }
+
+        async function handleDeletePayment(paymentId, studentId, amount) {
+            const confirmation = confirm(`Are you sure you want to delete this payment of ₹${amount.toLocaleString('en-IN')}? This action cannot be undone.`);
+            if (!confirmation) return;
+
+            try {
+                const response = await fetch(`${API_URL}/api/payments/${paymentId}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                if (!response.ok || !data.success) throw new Error(data.message);
+
+                alert(data.message);
+                await showStudentDetailsForAdmin(studentId, { isManagement: true });
+
+            } catch (error) {
+                console.error("Delete payment error:", error);
+                alert(`Error deleting payment: ${error.message}`);
+            }
+        }
+
+        async function handleEditPayment(event) {
+            event.preventDefault();
+            const errorDiv = document.getElementById('edit-payment-error');
+            errorDiv.classList.add('hidden');
+            showSpinner('edit-payment-btn-text', 'edit-payment-spinner');
+
+            const payload = {
+                paymentId: document.getElementById('edit-payment-id').value,
+                originalStudentId: document.getElementById('edit-original-student-id').value,
+                newStudentId: document.getElementById('edit-student-id').value.trim(),
+                newType: document.getElementById('edit-payment-type').value,
+                newAmount: parseFloat(document.getElementById('edit-amount').value),
+                year: parseInt(document.getElementById('edit-original-year').value),
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/api/payment/edit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                const data = await response.json();
+                if (!response.ok || !data.success) throw new Error(data.message);
+
+                alert(data.message);
+                closeEditPaymentModal();
+
+                const currentStudentInView = document.querySelector('#mh-student-details-card h3')?.textContent || '';
+                if (currentStudentInView.includes(payload.originalStudentId) || currentStudentInView.includes(payload.newStudentId)) {
+                     searchStudents(true); 
+                }
+                
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.classList.remove('hidden');
+            } finally {
+                hideSpinner('edit-payment-btn-text', 'edit-payment-spinner', 'Update Payment');
+            }
+        }
+
+        // --- Dashboard & UI Rendering ---
+        
+        async function updateDashboardUI() {
+            document.getElementById('user-name').textContent = currentUser.college_id;
+            document.getElementById('display-user-name').textContent = currentUser.full_name;
+
+            document.getElementById('student-dashboard-content').classList.add('hidden');
+            document.getElementById('admin-dashboard-content').classList.add('hidden');
+            document.getElementById('management-head-dashboard-content').classList.add('hidden');
+            document.getElementById('department-dashboard-content').classList.add('hidden');
+            
+            const welcomeSubtitle = document.getElementById('welcome-message-subtitle');
+
+            if (currentUser.role === 'student') {
+                welcomeSubtitle.textContent = 'Track your fee payments and download receipts.';
+                document.getElementById('student-dashboard-content').classList.remove('hidden');
+                const studentData = await loadStudentData(currentUser.college_id);
+                renderYearSelectorsForStudent(studentData);
+                showStudentPage('dues');
+
+            } else if (currentUser.role === 'admin') {
+                welcomeSubtitle.textContent = 'Manage student fees and daily financial transactions.';
+                document.getElementById('admin-dashboard-content').classList.remove('hidden');
+                await fetchAllStudents();
+                showAdminPage('admin-students');
+
+            } else if (currentUser.role === 'management_head') {
+                welcomeSubtitle.textContent = 'View financial reports and manage student payments.';
+                document.getElementById('management-head-dashboard-content').classList.remove('hidden');
+                
+                await Promise.all([fetchAllTransactions(), fetchAllStudents(), loadAndRenderAnalytics()]);
+
+                await updateMHGlobalStats();
+                setupMhDateSelectors();
+                
+                document.getElementById('mh-get-data-btn').click();
+                
+                showManagementPage('mh-overview');
+
+            } else if (currentUser.role === 'department') {
+                welcomeSubtitle.textContent = `View fee summaries for the ${currentUser.full_name}.`;
+                document.getElementById('department-dashboard-content').classList.remove('hidden');
+
+                const yearFilterContainer = document.getElementById('department-academic-year-filter').parentElement;
+                if (currentUser.course === 'S&H') {
+                    yearFilterContainer.classList.add('hidden');
+                } else {
+                    yearFilterContainer.classList.remove('hidden');
+                }
+
+                await loadAndRenderDepartmentPendingFees();
+            }
+        }
+        
+        function showStudentPage(pageName) {
+            ['dues', 'receipts'].forEach(page => {
+                document.getElementById(`student-${page}-page`).classList.toggle('active', page === pageName);
+                document.getElementById(`${page}-tab`).classList.toggle('active', page === pageName);
+            });
+        }
+        
+        function renderYearlySummaryTable(tbody, detailedSummary) {
+            tbody.innerHTML = '';
+            const yearlyData = Object.entries(detailedSummary).map(([year, fees]) => {
+                const totalFee = fees.reduce((sum, fee) => sum + fee.amountDue, 0);
+                const totalPaid = fees.reduce((sum, fee) => sum + fee.amountPaid, 0);
+                return {
+                    year: parseInt(year),
+                    totalFeeForYear: totalFee,
+                    totalPaidInYear: totalPaid,
+                    pendingAmount: totalFee - totalPaid
+                };
+            }).sort((a,b) => a.year - b.year);
+
+            if (yearlyData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No yearly fee data available.</td></tr>';
+                return;
+            }
+
+            yearlyData.forEach(item => {
+                const row = `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.year}${getOrdinalSuffix(item.year)} Year</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.totalFeeForYear.toLocaleString('en-IN')}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">${item.totalPaidInYear.toLocaleString('en-IN')}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold ${item.pendingAmount > 0 ? 'text-red-600' : 'text-gray-600'}">${item.pendingAmount.toLocaleString('en-IN')}</td>
+                    </tr>`;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        function renderPaymentHistory(container, payments, options = {}) {
+            const { append = false, showDelete = false, showDownload = true } = options;
+            if (!append) container.innerHTML = '';
+            
+            if (!payments || payments.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No payment history found for the selected years.</p>';
+                return;
+            }
+
+            payments.forEach(payment => {
+                const actionButton = showDelete ? `
+                    <button onclick="openEditPaymentModal('${payment.id}', '${payment.studentId}', '${payment.type}', ${payment.amount}, ${payment.year})" class="px-3 py-1 text-sm text-blue-600 border border-blue-600 rounded hover:bg-blue-50 transition-colors">
+                        Edit
+                    </button>
+                ` : '';
+                
+                const downloadButton = showDownload ? `
+                    <button onclick="downloadReceipt('${payment.id}')" class="px-3 py-1 text-sm text-blue-600 border border-blue-600 rounded hover:bg-blue-50 transition-colors">
+                        Download
+                    </button>
+                ` : '';
+
+                const card = `
+                    <div class="receipt-card bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-all">
+                        <div class="flex flex-wrap justify-between items-start gap-4">
+                            <div>
+                                <h4 class="font-medium text-gray-800">${payment.description}</h4>
+                                <p class="text-sm text-gray-500">Receipt No: ${payment.id}</p>
+                                <p class="text-sm text-gray-500">Date: ${new Date(payment.date).toLocaleDateString('en-GB')}</p>
+                                <p class="text-xs text-gray-500">Academic Year: ${payment.year ? payment.year + getOrdinalSuffix(payment.year) + ' Year' : 'N/A'}</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="px-3 py-1 text-sm font-semibold bg-green-100 text-green-800 rounded-full">₹${payment.amount.toLocaleString('en-IN')}</span>
+                                ${downloadButton}
+                                ${actionButton}
+                            </div>
+                        </div>
+                    </div>`;
+                container.insertAdjacentHTML('beforeend', card);
+            });
+        }
+        
+        function renderYearSelectorsForStudent(studentData) {
+            const duesYearSelector = document.getElementById('dues-year-selector');
+            const receiptsYearSelector = document.getElementById('receipts-year-selector');
+            duesYearSelector.innerHTML = '';
+            receiptsYearSelector.innerHTML = '';
+
+            const yearsWithData = Object.keys(studentData.detailedSummary).map(Number);
+            const maxYear = yearsWithData.length > 0 ? Math.max(...yearsWithData) : studentData.currentAcademicYear;
+
+            for (let year = 1; year <= Math.max(4, maxYear); year++) {
+                const btn = (type) => `
+                    <button class="year-button px-4 py-2 text-sm rounded-md border border-gray-300 hover:bg-blue-50 transition-colors"
+                            onclick="handleStudentYearSelection(${year}, '${type}')">
+                        ${year}${getOrdinalSuffix(year)} Year
+                    </button>`;
+                duesYearSelector.insertAdjacentHTML('beforeend', btn('dues'));
+                receiptsYearSelector.insertAdjacentHTML('beforeend', btn('receipts'));
+            }
+
+            const currentYear = studentData.currentAcademicYear || 1;
+            handleStudentYearSelection(currentYear, 'dues');
+            handleStudentYearSelection(currentYear, 'receipts');
+        }
+
+        function handleStudentYearSelection(year, type) {
+            if (type === 'dues') {
+                const container = document.getElementById('selected-year-dues-summary');
+                const feeDetails = currentStudentDataCache.detailedSummary[year] || [];
+                
+                const feeTypeOrder = ["Tuition Fee", "Transportation Fee", "Hostel fee", "Special Fee", "Registration Fee", "Other fee"];
+                const sortedFeeDetails = [...feeDetails].sort((a, b) => {
+                    const indexA = feeTypeOrder.indexOf(a.feeType);
+                    const indexB = feeTypeOrder.indexOf(b.feeType);
+                    const effectiveIndexA = indexA === -1 ? feeTypeOrder.length : indexA;
+                    const effectiveIndexB = indexB === -1 ? feeTypeOrder.length : indexB;
+                    return effectiveIndexA - effectiveIndexB;
+                });
+
+                let breakdownHtml = `<h4 class="text-lg font-semibold text-gray-800 mb-4">Fee Breakdown for ${year}${getOrdinalSuffix(year)} Year</h4>`;
+                
+                if (sortedFeeDetails.length === 0 || sortedFeeDetails.every(f => f.amountDue === 0)) {
+                    breakdownHtml += '<p class="text-gray-500 text-center">No fee structure has been defined for this academic year.</p>';
+                } else {
+                    breakdownHtml += '<div class="space-y-3">';
+                    sortedFeeDetails.forEach(fee => {
+                        let statusText, statusColor;
+                        if (fee.pendingAmount <= 0) {
+                            statusText = 'Paid';
+                            statusColor = 'bg-green-100 text-green-800';
+                        } else if (fee.amountPaid > 0) {
+                            statusText = 'Partially Paid';
+                            statusColor = 'bg-yellow-100 text-yellow-800';
+                        } else {
+                            statusText = 'Pending';
+                            statusColor = 'bg-red-100 text-red-800';
+                        }
+                        breakdownHtml += `
+                            <div class="grid grid-cols-3 md:grid-cols-5 gap-4 items-center bg-white p-4 rounded-lg border shadow-sm">
+                                <div class="col-span-3 md:col-span-2 font-medium text-gray-800">${fee.feeType}</div>
+                                <div class="text-sm text-gray-600"><span class="font-semibold">Due:</span> ₹${fee.amountDue.toLocaleString('en-IN')}</div>
+                                <div class="text-sm text-gray-600"><span class="font-semibold">Paid:</span> ₹${fee.amountPaid.toLocaleString('en-IN')}</div>
+                                <div class="text-sm text-center"><span class="px-2 py-1 text-xs font-bold rounded-full ${statusColor}">${statusText}</span></div>
+                            </div>`;
+                    });
+                    breakdownHtml += '</div>';
+                }
+                container.innerHTML = breakdownHtml;
+
+            } else if (type === 'receipts') {
+                const container = document.getElementById('selected-year-receipts-container');
+                const paymentsForYear = currentStudentDataCache.payments.filter(p => p.year === year);
+                container.innerHTML = `<h4 class="text-lg font-semibold text-gray-800 mb-3">${year}${getOrdinalSuffix(year)} Year Receipts</h4>`;
+                renderPaymentHistory(container, paymentsForYear, { showDownload: true });
+            }
+            
+            const selectorId = `${type}-year-selector`;
+            document.querySelectorAll(`#${selectorId} .year-button`).forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.startsWith(year));
+            });
+        }
+
+        // --- Admin & Management Dashboard Functions ---
+        async function showAdminPage(pageName) {
+            ['admin-students', 'admin-daily-transactions'].forEach(page => {
+                 document.getElementById(`${page}-page`).classList.toggle('active', page === pageName);
+                 document.getElementById(`${page}-tab`).classList.toggle('active', page === pageName);
+            });
+
+            if(pageName === 'admin-students') {
+                document.getElementById('student-search-input').value = '';
+                document.getElementById('search-results-container').innerHTML = '<p class="text-gray-500 text-center py-4">Search for students to manage their dues and receipts.</p>';
+                document.getElementById('admin-student-details-card').classList.add('hidden');
+            } else if (pageName === 'admin-daily-transactions') {
+                await renderDailyTransactionsAdminView();
+            }
+        }
+        
+        function searchStudents(isManagement = false) {
+            let inputId, containerId, detailsCardId;
+            if (isManagement) {
+                inputId = 'mh-student-search-input';
+                containerId = 'mh-search-results-container';
+                detailsCardId = 'mh-student-details-card';
+            } else {
+                inputId = 'student-search-input';
+                containerId = 'search-results-container';
+                detailsCardId = 'admin-student-details-card';
+            }
+            
+            const searchTerm = document.getElementById(inputId).value.trim().toLowerCase();
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            document.getElementById(detailsCardId).classList.add('hidden');
+
+            const foundStudents = allStudentsCache.filter(student =>
+                student.college_id.toLowerCase().includes(searchTerm) || 
+                student.full_name.toLowerCase().includes(searchTerm)
+            );
+
+            if (foundStudents.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No students found.</p>';
+                return;
+            }
+
+            const resultsList = document.createElement('div');
+            resultsList.className = 'space-y-3';
+            foundStudents.forEach(student => {
+                const item = `
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 flex justify-between items-center shadow-sm">
+                        <div>
+                            <p class="font-medium text-gray-900">${student.full_name}</p>
+                            <p class="text-sm text-gray-600">ID: ${student.college_id}</p>
+                        </div>
+                        <button onclick="showStudentDetailsForAdmin('${student.college_id}', { isManagement: ${isManagement} })" class="px-3 py-1 text-sm text-blue-600 border border-blue-600 rounded hover:bg-blue-50 transition-colors">
+                            View Details
+                        </button>
+                    </div>`;
+                resultsList.insertAdjacentHTML('beforeend', item);
+            });
+            container.appendChild(resultsList);
+        }
+
+        async function showStudentDetailsForAdmin(collegeId, options = {}) {
+            const { isManagement = false } = options;
+            currentAdminSelectedStudentId = collegeId;
+            try {
+                const response = await fetch(`${API_URL}/api/student/${collegeId}`);
+                const data = await response.json();
+                if (!data.success) throw new Error(data.message);
+                
+                const student = data.data;
+                currentStudentDataCache = student;
+                
+                let overallTotalFees = 0;
+                Object.values(student.detailedSummary).forEach(yearFees => {
+                    yearFees.forEach(fee => {
+                        overallTotalFees += fee.amountDue;
+                    });
+                });
+                const overallPaidAmount = student.paidAmount;
+                const dueAmount = overallTotalFees - overallPaidAmount;
+                
+                const paymentHistoryOptions = isManagement 
+                    ? { showDelete: true, showDownload: false }
+                    : { showDownload: false };
+
+                let cardId, feeTbodyId, paymentContainerId;
+                if (isManagement) {
+                    cardId = 'mh-student-details-card';
+                    feeTbodyId = 'mh-fee-structure-table-body';
+                    paymentContainerId = 'mh-payment-history-container';
+                } else {
+                    cardId = 'admin-student-details-card';
+                    feeTbodyId = 'admin-fee-structure-table-body';
+                    paymentContainerId = 'admin-payment-history-container';
+                }
+
+                const detailsHtml = `
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Student Details: ${student.full_name} (${student.college_id})</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 mb-6">
+                        <div><strong>Course:</strong> ${student.course || 'N/A'}</div>
+                        <div><strong>Overall Total Fees:</strong> ₹${overallTotalFees.toLocaleString('en-IN')}</div>
+                        <div><strong>Overall Paid Amount:</strong> ₹${overallPaidAmount.toLocaleString('en-IN')}</div>
+                        <div><strong>Overall Pending Amount:</strong> ₹${dueAmount.toLocaleString('en-IN')}</div>
+                    </div>
+                    
+                    ${!isManagement ? `
+                    <div class="flex flex-wrap gap-4 mb-6">
+                        <button onclick="openUpdateDuesModal('${collegeId}')" class="px-4 py-2 text-sm text-white bg-green-600 rounded-md hover:bg-green-700">Update Fees / Add Payment</button>
+                    </div>` : ''}
+
+                    <h4 class="text-lg font-semibold text-gray-900 mb-3">Yearly Fee Summary</h4>
+                    <div class="overflow-x-auto mb-6">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Academic Year</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Fee (₹)</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount Paid (₹)</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pending (₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="${feeTbodyId}"></tbody>
+                        </table>
+                    </div>
+
+                    <h4 class="text-lg font-semibold text-gray-900 mb-3">Payment History</h4>
+                    <div class="space-y-4" id="${paymentContainerId}"></div>
+                `;
+                
+                const card = document.getElementById(cardId);
+                card.innerHTML = detailsHtml;
+
+                renderYearlySummaryTable(document.getElementById(feeTbodyId), student.detailedSummary);
+                renderPaymentHistory(document.getElementById(paymentContainerId), student.payments, paymentHistoryOptions);
+                
+                card.classList.remove('hidden');
+
+            } catch (error) {
+                alert(`Failed to get student details: ${error.message}`);
+            }
+        }
+        
+        async function renderDailyTransactionsAdminView() {
+            await fetchAllTransactions();
+            const tbody = document.getElementById('daily-transactions-table-body-admin');
+            tbody.innerHTML = '';
+
+            if (allTransactionsCache.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No transactions recorded yet.</td></tr>';
+                document.getElementById('today-collections-amount').textContent = '0';
+                document.getElementById('today-detections-amount').textContent = '0';
+                document.getElementById('today-net-amount').textContent = '0';
+                return;
+            }
+            
+            let todayCredits = 0;
+            let todayDebits = 0;
+            const today = new Date();
+
+            allTransactionsCache.forEach(tx => {
+                if (new Date(tx.date).toDateString() === today.toDateString()) {
+                    if (tx.type === 'credit') {
+                        todayCredits += parseFloat(tx.amount);
+                    } else {
+                        todayDebits += parseFloat(tx.amount);
+                    }
+                }
+
+                const typeClass = tx.type === 'credit' ? 'text-green-600' : 'text-red-600';
+                const typeText = tx.type.charAt(0).toUpperCase() + tx.type.slice(1);
+                const row = `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${new Date(tx.date).toLocaleDateString('en-GB')}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm ${typeClass}">${typeText}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹${tx.amount.toLocaleString('en-IN')}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">${tx.description}</td>
+                    </tr>`;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+
+            document.getElementById('today-collections-amount').textContent = todayCredits.toLocaleString('en-IN');
+            document.getElementById('today-detections-amount').textContent = todayDebits.toLocaleString('en-IN');
+            document.getElementById('today-net-amount').textContent = (todayCredits - todayDebits).toLocaleString('en-IN');
+        }
+
+
+        async function showManagementPage(pageName) {
+            ['mh-overview', 'mh-students', 'mh-pending-fees'].forEach(page => {
+                document.getElementById(`${page}-page`).classList.toggle('active', page === pageName);
+                document.getElementById(`${page}-tab`).classList.toggle('active', page === pageName);
+            });
+            
+            if (pageName === 'mh-overview') {
+                await loadAndRenderAnalytics();
+            }
+
+            if (pageName === 'mh-students') {
+                 document.getElementById('mh-student-search-input').value = '';
+                 document.getElementById('mh-search-results-container').innerHTML = '<p class="text-gray-500 text-center py-4">Search for students to manage their payments.</p>';
+                 document.getElementById('mh-student-details-card').classList.add('hidden');
+            } else if (pageName === 'mh-pending-fees') {
+                await loadAndRenderPendingFees();
+            }
+        }
+
+        async function updateMHGlobalStats() {
+            let overallRunningTotal = 0;
+            let todayNet = 0;
+            let todayDebits = 0;
+            const today = new Date(); 
+
+            for (const tx of allTransactionsCache) {
+                const txAmount = tx.type === 'credit' ? parseFloat(tx.amount) : -parseFloat(tx.amount);
+                
+                if (new Date(tx.date).toDateString() === today.toDateString()) {
+                    todayNet += txAmount;
+                    if (tx.type === 'debit') {
+                        todayDebits += parseFloat(tx.amount);
+                    }
+                }
+                overallRunningTotal += txAmount;
+            }
+            
+            document.getElementById('mh-today-net-amount').textContent = todayNet.toLocaleString('en-IN');
+            document.getElementById('mh-today-debits-amount').textContent = todayDebits.toLocaleString('en-IN');
+            document.getElementById('mh-overall-running-total').textContent = overallRunningTotal.toLocaleString('en-IN');
+        }
+
+        function setupMhDateSelectors() {
+            const yearSelect = document.getElementById('mh-year-select');
+            const monthSelect = document.getElementById('mh-month-select');
+            const daySelect = document.getElementById('mh-day-select');
+            
+            const today = new Date();
+            const currentYear = today.getFullYear();
+            const currentMonth = today.getMonth() + 1; // 1-12
+            const currentDay = today.getDate();
+
+            yearSelect.innerHTML = '';
+            for (let year = currentYear; year >= 2020; year--) {
+                yearSelect.insertAdjacentHTML('beforeend', `<option value="${year}">${year}</option>`);
+            }
+            yearSelect.value = currentYear;
+
+            monthSelect.innerHTML = '';
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            monthNames.forEach((month, index) => {
+                monthSelect.insertAdjacentHTML('beforeend', `<option value="${index + 1}">${month}</option>`);
+            });
+            monthSelect.value = currentMonth;
+
+            function populateDays() {
+                const selectedYear = parseInt(yearSelect.value);
+                const selectedMonth = parseInt(monthSelect.value);
+                const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
+                const previouslySelectedDay = parseInt(daySelect.value);
+                
+                daySelect.innerHTML = '';
+                daySelect.insertAdjacentHTML('beforeend', '<option value="all">All Days</option>');
+                for (let day = 1; day <= daysInMonth; day++) {
+                    daySelect.insertAdjacentHTML('beforeend', `<option value="${day}">${day}</option>`);
+                }
+                
+                if (previouslySelectedDay && previouslySelectedDay <= daysInMonth) {
+                    daySelect.value = previouslySelectedDay;
+                } else {
+                     daySelect.value = 'all'; 
+                }
+            }
+            
+            populateDays();
+            daySelect.value = 'all'; 
+            
+            yearSelect.addEventListener('change', populateDays);
+            monthSelect.addEventListener('change', populateDays);
+        }
+        
+        function renderManagementHeadDashboard(startDate, endDate) {
+            const sortedTx = [...allTransactionsCache].sort((a, b) => new Date(a.date) - new Date(b.date));
+            let periodNet = 0;
+            
+            const start = new Date(startDate);
+            start.setHours(0, 0, 0, 0);
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+
+            const periodTx = sortedTx.filter(tx => {
+                const txDate = new Date(tx.date);
+                return txDate >= start && txDate <= end;
+            });
+
+            for (const tx of periodTx) {
+                const txAmount = tx.type === 'credit' ? parseFloat(tx.amount) : -parseFloat(tx.amount);
+                periodNet += txAmount;
+            }
+
+            document.getElementById('mh-period-net-amount').textContent = periodNet.toLocaleString('en-IN');
+            
+            const tbody = document.getElementById('daily-transactions-table-body-mh');
+            tbody.innerHTML = '';
+            
+            if (periodTx.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No transactions recorded for this period.</td></tr>`;
+                return;
+            }
+
+            periodTx.forEach(tx => {
+                const typeClass = tx.type === 'credit' ? 'text-green-600' : 'text-red-600';
+                const typeText = tx.type.charAt(0).toUpperCase() + tx.type.slice(1);
+                const row = `<tr><td class="px-6 py-3">${new Date(tx.date).toLocaleDateString('en-GB')}</td><td class="px-6 py-3 ${typeClass}">${typeText}</td><td class="px-6 py-3">₹${parseFloat(tx.amount).toLocaleString('en-IN')}</td><td class="px-6 py-3">${tx.description}</td></tr>`;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+        }
+        
+        // MODIFICATION 1 (JS): Updated function
+        async function loadAndRenderPendingFees() {
+            const yearFilter = document.getElementById('mh-academic-year-filter');
+            const selectedYear = yearFilter.value;
+            await fetchPendingFees(selectedYear);
+            
+            const typeFilter = document.getElementById('pending-fee-type-filter');
+            const deptFilter = document.getElementById('mh-department-filter');
+            
+            const feeTypes = ALL_FEE_TYPES;
+            
+            typeFilter.innerHTML = '<option value="all">All Fee Types</option>';
+            feeTypes.forEach(type => {
+                typeFilter.insertAdjacentHTML('beforeend', `<option value="${type}">${type}</option>`);
+            });
+
+            // Populate department filter
+            deptFilter.innerHTML = '';
+            DEPARTMENT_LIST.forEach(dept => {
+                deptFilter.insertAdjacentHTML('beforeend', `<option value="${dept.id}">${dept.name}</option>`);
+            });
+
+            yearFilter.onchange = () => loadAndRenderPendingFees(); 
+            typeFilter.onchange = () => renderPendingFeesTable();
+            deptFilter.onchange = () => renderPendingFeesTable(); // Add event listener
+            renderPendingFeesTable();
+        }
+
+        // --- ADD THIS HELPER FUNCTION IN index.html SCRIPT SECTION ---
+
+function isStudentPassedOut(collegeId, course) {
+    if (!collegeId || collegeId.length < 2) return false;
+
+    // 1. Extract Admission Year (First 2 digits, e.g., '22' -> 2022)
+    const admissionYearShort = parseInt(collegeId.substring(0, 2));
+    if (isNaN(admissionYearShort)) return false; 
+    const admissionYear = 2000 + admissionYearShort;
+
+    // 2. Determine Course Duration
+    // Diploma is 3 years, everything else (B.Tech) is 4 years
+    const courseDuration = (course && course.toUpperCase().includes('DIPLOMA')) ? 3 : 4;
+
+    // 3. Get Current Date context
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth() + 1; // 1 = Jan, 12 = Dec
+
+    // 4. Calculate "Virtual" Current Year
+    // Academic year usually changes in June/July. 
+    // If we are in Jan-May 2026, a 2022 batch is finishing 4th year.
+    // If we are in Aug 2026, a 2022 batch has finished (Passed Out).
+    
+    let yearsElapsed = currentYear - admissionYear;
+    
+    // If currently in the first half of the year (Jan-June), they haven't finished the current academic cycle yet.
+    // Example: 22 Batch in Jan 2026. 2026-2022 = 4. They are in 4th year.
+    // Example: 22 Batch in Aug 2026. 2026-2022 = 4. But academic year shifted, effectively they are done.
+    
+    // We assume if calculating "Passed Out", we check if the years elapsed >= duration
+    // AND if we are past the academic cycle (June).
+    
+    // Simplified logic:
+    // Batch 22 + 4 years = 2026 Graduation.
+    // If Today > June 2026, they are passed out.
+    
+    const graduationYear = admissionYear + courseDuration;
+    
+    if (currentYear > graduationYear) {
+        return true; // Definitely passed out (e.g., Year is 2027 for 2022 batch)
+    } else if (currentYear === graduationYear) {
+        // It is their graduation year. Are they past June?
+        return currentMonth > 6; 
+    } else {
+        return false; // Still studying
+    }
+}
+
+        // MODIFICATION 1 (JS): Updated function
+        // REPLACE THE EXISTING renderPendingFeesTable FUNCTION WITH THIS
+// --- REPLACE YOUR EXISTING renderPendingFeesTable FUNCTION ---
+
+function renderPendingFeesTable() {
+    const tbody = document.getElementById('pending-fees-table-body');
+    tbody.innerHTML = '';
+
+    const typeFilterValue = document.getElementById('pending-fee-type-filter').value;
+    const yearFilterValue = document.getElementById('mh-academic-year-filter').value;
+    const deptFilterValue = document.getElementById('mh-department-filter').value;
+    const searchTerm = document.getElementById('mh-pending-search') ? document.getElementById('mh-pending-search').value.toLowerCase() : '';
+
+    let filteredData = pendingFeesCache;
+
+    // 1. Search Filter
+    if (searchTerm) {
+        filteredData = filteredData.filter(item => 
+            (item.full_name && item.full_name.toLowerCase().includes(searchTerm)) || 
+            (item.studentId && item.studentId.toLowerCase().includes(searchTerm))
+        );
+    }
+
+    // 2. Year Filter (UPDATED LOGIC)
+    if (yearFilterValue !== 'all') {
+        if (yearFilterValue === 'passed_out') {
+            // Use the new Helper Function
+            filteredData = filteredData.filter(item => isStudentPassedOut(item.studentId, item.course));
+        } else {
+            // Show specific year (1, 2, 3, 4) AND ensure they are NOT passed out
+            filteredData = filteredData.filter(item => {
+                const isPassed = isStudentPassedOut(item.studentId, item.course);
+                // Determine current calculated year for the student
+                // (This logic ensures we match 22 batch to 4th year in 2026, etc)
+                const admissionYear = 2000 + parseInt(item.studentId.substring(0, 2));
+                const today = new Date();
+                let calcYear = today.getFullYear() - admissionYear;
+                if (today.getMonth() + 1 > 6) calcYear += 1; // Increment if past June
+                
+                // Fallback to database year if calculation seems off (e.g. lateral entry)
+                const effectiveYear = item.academic_year; 
+
+                return effectiveYear == yearFilterValue && !isPassed;
+            });
+        }
+    }
+
+    // 3. Fee Type Filter
+    if (typeFilterValue !== 'all') {
+        filteredData = filteredData.filter(item => item.fee_type === typeFilterValue);
+    }
+    
+    // 4. Department Filter
+    if (deptFilterValue !== 'ALL') {
+        const deptCodeMap = {
+            'CSE': ['05'], 'CSD': ['44', '58'], 'CSM': ['42', '47'], 'ECE': ['04'],
+            'MECHANICAL': ['03'], 'EEE': ['02'], 'CIVIL': ['01']
+        };
+        const engineeringCodes = ['44', '58', '05', '42', '47', '04', '03', '02', '01'];
+
+        filteredData = filteredData.filter(item => {
+            const studentId = item.studentId || '';
+            const course = item.course || '';
+            const deptCode = studentId.length >= 8 ? studentId.substring(6, 8) : '';
+
+            switch (deptFilterValue) {
+                case 'S&H':
+                    return engineeringCodes.includes(deptCode) && item.currentAcademicYear === 1;
+                case 'DIPLOMA':
+                    return course.toUpperCase() === 'DIPLOMA';
+                default:
+                    const codes = deptCodeMap[deptFilterValue];
+                    return codes ? codes.includes(deptCode) : false;
+            }
+        });
+    }
+    
+    const totalPending = filteredData.reduce((sum, item) => sum + parseFloat(item.pending_amount), 0);
+    document.getElementById('total-pending-amount-display').textContent = `₹${totalPending.toLocaleString('en-IN')}`;
+
+    if (filteredData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="px-6 py-4 text-center text-gray-500">No pending fees found.</td></tr>`;
+        return;
+    }
+
+    filteredData.forEach(item => {
+        const academicYearDisplay = item.academicYearDisplay;
+        const currentAcademicYearDisplay = `${item.currentAcademicYear}${getOrdinalSuffix(item.currentAcademicYear)} Year`;
+        
+        // Visual indicator for passed out
+        const isPassed = isStudentPassedOut(item.studentId, item.course);
+        const statusBadge = isPassed ? '<span class="ml-2 px-2 py-0.5 text-xs bg-gray-200 text-gray-600 rounded">Passed Out</span>' : '';
+
+        const row = `
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.full_name}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.studentId}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.course}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${currentAcademicYearDisplay} ${statusBadge}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${academicYearDisplay}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.fee_type}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">₹${item.total_paid.toLocaleString('en-IN')}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-red-600">₹${item.pending_amount.toLocaleString('en-IN')}</td>
+            </tr>`;
+        tbody.insertAdjacentHTML('beforeend', row);
+    });
+}
+        function executePendingReportDownload() {
+            const selector = document.getElementById('mh-report-dept-selector');
+            const selectedDeptId = selector.value;
+            const selectedDeptName = selector.options[selector.selectedIndex].text;
+
+            const typeFilter = document.getElementById('pending-fee-type-filter');
+            const yearFilter = document.getElementById('mh-academic-year-filter');
+            const typeFilterValue = typeFilter.value;
+            const selectedYear = yearFilter.value;
+            const filterText = typeFilter.options[typeFilter.selectedIndex].text;
+            
+            let dataToProcess = pendingFeesCache;
+            
+            if (selectedYear !== 'all') {
+                if (selectedYear === 'passed_out') {
+                    dataToProcess = dataToProcess.filter(item => item.currentAcademicYear > 4);
+                } else {
+                    dataToProcess = dataToProcess.filter(item => item.academic_year == selectedYear);
+                }
+            }
+            if (typeFilterValue !== 'all') {
+                dataToProcess = dataToProcess.filter(item => item.fee_type === typeFilterValue);
+            }
+            
+            let filteredData;
+            if (selectedDeptId === 'ALL') {
+                filteredData = dataToProcess;
+            } else {
+                const deptCodeMap = {
+                    'CSE': ['05'], 'CSD': ['44', '58'], 'CSM': ['42', '47'], 'ECE': ['04'],
+                    'MECHANICAL': ['03'], 'EEE': ['02'], 'CIVIL': ['01']
+                };
+
+                filteredData = dataToProcess.filter(item => {
+                    const studentId = item.studentId || '';
+                    const course = item.course || '';
+                    const deptCode = studentId.length >= 8 ? studentId.substring(6, 8) : '';
+
+                    switch (selectedDeptId) {
+                        case 'S&H':
+                            const SandH_EngineeringCodes = ['44', '58', '05', '42', '47'];
+                            return SandH_EngineeringCodes.includes(deptCode) && item.academic_year === 1;
+                        case 'DIPLOMA':
+                            return course.toUpperCase() === 'DIPLOMA';
+                        default:
+                            const codes = deptCodeMap[selectedDeptId];
+                            return codes ? codes.includes(deptCode) : false;
+                    }
+                });
+            }
+
+            if (filteredData.length === 0) {
+                alert(`No pending fee data found for "${selectedDeptName}" with the selected filters.`);
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'landscape' });
+
+            const tableColumn = ["Student Name", "College ID", "Course", "Current Year", "Fee Year", "Fee Type", "Paid Amount (INR)", "Pending Amount (INR)"];
+            const tableRows = [];
+
+            filteredData.forEach(item => {
+                const itemData = [
+                    item.full_name,
+                    item.studentId,
+                    item.course,
+                    `${item.currentAcademicYear}${getOrdinalSuffix(item.currentAcademicYear)} Year`,
+                    item.academicYearDisplay,
+                    item.fee_type,
+                    item.total_paid.toLocaleString('en-IN'),
+                    item.pending_amount.toLocaleString('en-IN')
+                ];
+                tableRows.push(itemData);
+            });
+
+            doc.setFontSize(18);
+            doc.text(`Pending Fee Report - ${selectedDeptName}`, 14, 22);
+            doc.setFontSize(11);
+            doc.setTextColor(100);
+            doc.text(`Fee Type Filter: ${filterText}`, 14, 29);
+
+            doc.autoTable({
+                head: [tableColumn],
+                body: tableRows,
+                startY: 35,
+                theme: 'grid'
+            });
+
+            const date = new Date().toISOString().slice(0, 10);
+            doc.save(`pending-fees-${selectedDeptId.toLowerCase()}-${date}.pdf`);
+            
+            closeMhDownloadModal();
+        }
+
+        async function loadAndRenderAnalytics() {
+            try {
+                const response = await fetch(`${API_URL}/api/management/analytics`);
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'Failed to fetch analytics data.');
+                }
+                monthlyCollectionsChartOverview = renderMonthlyCollectionsChart('monthlyCollectionsChartOverview', result.data.monthlyCollections, monthlyCollectionsChartOverview);
+                pendingByDeptChartOverview = renderPendingByDeptChart('pendingByDeptChartOverview', result.data.pendingByDept, pendingByDeptChartOverview);
+                
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
+        }
+
+        function renderMonthlyCollectionsChart(canvasId, data, existingChart) {
+            const ctx = document.getElementById(canvasId)?.getContext('2d');
+            if (!ctx) return existingChart; 
+            
+            const labels = data.map(d => d.month);
+            const values = data.map(d => d.total);
+
+            if (existingChart) {
+                existingChart.destroy(); 
+            }
+            
+            return new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total Collection (₹)',
+                        data: values,
+                        backgroundColor: 'rgba(59, 130, 246, 0.6)', 
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    return '₹' + value.toLocaleString('en-IN');
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += '₹' + context.parsed.y.toLocaleString('en-IN');
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderPendingByDeptChart(canvasId, data, existingChart) {
+            const ctx = document.getElementById(canvasId)?.getContext('2d');
+            if (!ctx) return existingChart;
+
+            const labels = data.map(d => d.department);
+            const values = data.map(d => d.totalPending);
+
+            if (existingChart) {
+                existingChart.destroy();
+            }
+
+            return new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Pending Amount (₹)',
+                        data: values,
+                        backgroundColor: [
+                            'rgba(239, 68, 68, 0.7)',
+                            'rgba(245, 158, 11, 0.7)',
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(6, 182, 212, 0.7)', 
+                            'rgba(139, 92, 246, 0.7)',
+                            'rgba(236, 72, 153, 0.7)'
+                        ],
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += '₹' + context.parsed.toLocaleString('en-IN');
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- DEPARTMENT DASHBOARD FUNCTIONS ---
+        async function loadAndRenderDepartmentPendingFees() {
+            try {
+                const yearFilter = document.getElementById('department-academic-year-filter');
+                const selectedYear = (currentUser.course === 'S&H' || !yearFilter) ? 'all' : yearFilter.value;
+
+                const response = await fetch(`${API_URL}/api/department/pending-fees`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        departmentCourse: currentUser.course,
+                        academicYear: selectedYear 
+                    }),
+                });
+                const data = await response.json();
+                if (!response.ok || !data.success) throw new Error(data.message);
+                
+                departmentPendingFeesCache = data.data;
+
+                const typeFilter = document.getElementById('department-pending-fee-type-filter');
+                typeFilter.innerHTML = '<option value="all">All Fee Types</option>';
+                ALL_FEE_TYPES.forEach(type => {
+                    typeFilter.insertAdjacentHTML('beforeend', `<option value="${type}">${type}</option>`);
+                });
+
+                yearFilter.onchange = () => loadAndRenderDepartmentPendingFees();
+                typeFilter.onchange = () => renderDepartmentPendingFeesTable();
+                renderDepartmentPendingFeesTable();
+
+            } catch (error) {
+                console.error("Failed to load department pending fees:", error);
+                const tbody = document.getElementById('department-pending-fees-table-body');
+                tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-4 text-center text-red-500">Error loading report: ${error.message}</td></tr>`;
+            }
+        }
+
+        // REPLACE THE EXISTING renderDepartmentPendingFeesTable FUNCTION WITH THIS
+// --- REPLACE YOUR EXISTING renderDepartmentPendingFeesTable FUNCTION ---
+
+function renderDepartmentPendingFeesTable() {
+    const tbody = document.getElementById('department-pending-fees-table-body');
+    tbody.innerHTML = '';
+
+    const typeFilterValue = document.getElementById('department-pending-fee-type-filter').value;
+    const yearFilter = document.getElementById('department-academic-year-filter');
+    const yearFilterValue = (currentUser.course === 'S&H' || !yearFilter) ? 'all' : yearFilter.value;
+    const searchTerm = document.getElementById('dept-pending-search') ? document.getElementById('dept-pending-search').value.toLowerCase() : '';
+
+    let filteredData = departmentPendingFeesCache;
+    
+    if (searchTerm) {
+        filteredData = filteredData.filter(item => 
+            (item.full_name && item.full_name.toLowerCase().includes(searchTerm)) || 
+            (item.studentId && item.studentId.toLowerCase().includes(searchTerm))
+        );
+    }
+
+    // UPDATED LOGIC FOR DEPARTMENT VIEW
+    if (yearFilterValue !== 'all') {
+        if (yearFilterValue === 'passed_out') {
+             filteredData = filteredData.filter(item => isStudentPassedOut(item.studentId, item.course));
+        } else {
+            filteredData = filteredData.filter(item => {
+                const isPassed = isStudentPassedOut(item.studentId, item.course);
+                return item.academic_year == yearFilterValue && !isPassed;
+            });
+        }
+    }
+
+    if (typeFilterValue !== 'all') {
+        filteredData = filteredData.filter(item => item.fee_type === typeFilterValue);
+    }
+
+    if (filteredData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">No pending fees found.</td></tr>`;
+        return;
+    }
+
+    filteredData.forEach(item => {
+        const academicYearDisplay = item.academicYearDisplay;
+        const currentAcademicYearDisplay = `${item.currentAcademicYear}${getOrdinalSuffix(item.currentAcademicYear)} Year`;
+        
+        const isPassed = isStudentPassedOut(item.studentId, item.course);
+        const statusBadge = isPassed ? '<span class="ml-2 px-2 py-0.5 text-xs bg-gray-200 text-gray-600 rounded">Passed Out</span>' : '';
+
+        const row = `
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.full_name}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.studentId}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${currentAcademicYearDisplay} ${statusBadge}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${academicYearDisplay}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.fee_type}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">₹${item.total_paid.toLocaleString('en-IN')}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-red-600">₹${item.pending_amount.toLocaleString('en-IN')}</td>
+            </tr>`;
+        tbody.insertAdjacentHTML('beforeend', row);
+    });
+}
+
+        function downloadDepartmentPendingReport() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'landscape' });
+
+            const typeFilter = document.getElementById('department-pending-fee-type-filter');
+            const yearFilter = document.getElementById('department-academic-year-filter');
+            const filterType = typeFilter.value;
+            const selectedYear = (currentUser.course === 'S&H' || !yearFilter) ? 'all' : yearFilter.value;
+            const filterText = typeFilter.options[typeFilter.selectedIndex].text;
+
+            let filteredData = departmentPendingFeesCache;
+            if (selectedYear !== 'all') {
+                if (selectedYear === 'passed_out') {
+                    filteredData = filteredData.filter(item => item.currentAcademicYear > 4);
+                } else {
+                    filteredData = filteredData.filter(item => item.academic_year == selectedYear);
+                }
+            }
+            if (filterType !== 'all') {
+                filteredData = filteredData.filter(item => item.fee_type === filterType);
+            }
+
+            if (filteredData.length === 0) {
+                alert("No data to download for the selected filter.");
+                return;
+            }
+
+            const tableColumn = ["Student Name", "College ID", "Current Year", "Fee Year", "Fee Type", "Paid Amount (INR)", "Pending Amount (INR)"];
+            const tableRows = [];
+
+            filteredData.forEach(item => {
+                const itemData = [
+                    item.full_name,
+                    item.studentId,
+                    `${item.currentAcademicYear}${getOrdinalSuffix(item.currentAcademicYear)} Year`,
+                    item.academicYearDisplay,
+                    item.fee_type,
+                    item.total_paid.toLocaleString('en-IN'),
+                    item.pending_amount.toLocaleString('en-IN')
+                ];
+                tableRows.push(itemData);
+            });
+            
+            doc.setFontSize(18);
+            doc.text(`Pending Fee Report - ${currentUser.full_name}`, 14, 22);
+            doc.setFontSize(11);
+            doc.setTextColor(100);
+            doc.text(`Filter Applied: ${filterText}`, 14, 29);
+            doc.text(`Date: ${new Date().toLocaleDateString('en-GB')}`, 14, 36);
+
+            doc.autoTable({
+                head: [tableColumn],
+                body: tableRows,
+                startY: 40,
+                theme: 'grid'
+            });
+
+            const date = new Date().toISOString().slice(0, 10);
+            doc.save(`pending-fees-report-${currentUser.course.replace(/ /g, '_')}-${date}.pdf`);
+        }
+        
+        function downloadDepartmentPendingCSV() {
+            if (!departmentPendingFeesCache || departmentPendingFeesCache.length === 0) {
+                alert('No pending fee data available to download.');
+                return;
+            }
+
+            const typeFilter = document.getElementById('department-pending-fee-type-filter');
+            const yearFilter = document.getElementById('department-academic-year-filter');
+            const filterType = typeFilter.value;
+            const selectedYear = (currentUser.course === 'S&H' || !yearFilter) ? 'all' : yearFilter.value;
+
+            let filteredData = departmentPendingFeesCache;
+            if (selectedYear !== 'all') {
+                if (selectedYear === 'passed_out') {
+                    filteredData = filteredData.filter(item => item.currentAcademicYear > 4);
+                } else {
+                    filteredData = filteredData.filter(item => item.academic_year == selectedYear);
+                }
+            }
+            if (filterType !== 'all') {
+                filteredData = filteredData.filter(item => item.fee_type === filterType);
+            }
+
+            if (filteredData.length === 0) {
+                alert("No data to download for the selected filter.");
+                return;
+            }
+
+            const headers = ['Student Name', 'College ID', 'Course', 'Current Year', 'Fee Year', 'Fee Type', 'Paid Amount (INR)', 'Pending Amount (INR)'];
+            const csvRows = [headers.join(',')];
+
+            for (const item of filteredData) {
+                const studentName = `"${String(item.full_name || '').replace(/"/g, '""')}"`;
+                const course = `"${String(item.course || '').replace(/"/g, '""')}"`;
+                const currentYear = `"${item.currentAcademicYear}${getOrdinalSuffix(item.currentAcademicYear)} Year"`;
+                const feeYear = `"${String(item.academicYearDisplay || '').replace(/"/g, '""')}"`;
+                const feeType = `"${String(item.fee_type || '').replace(/"/g, '""')}"`;
+
+                const row = [
+                    studentName,
+                    item.studentId,
+                    course,
+                    currentYear,
+                    feeYear,
+                    feeType,
+                    item.total_paid,
+                    item.pending_amount
+                ];
+                csvRows.push(row.join(','));
+            }
+
+            const csvString = csvRows.join('\n');
+            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            const date = new Date().toISOString().slice(0, 10);
+            link.setAttribute("download", `pending-fees-report-${currentUser.course.replace(/ /g, '_')}-${date}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        async function downloadDepartmentPaymentHistory(event) {
+            if (!currentUser || currentUser.role !== 'department') return;
+
+            const downloadBtn = event.target;
+            const originalText = downloadBtn.textContent;
+            downloadBtn.textContent = 'Generating...';
+            downloadBtn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_URL}/api/department/payment-history`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ departmentCourse: currentUser.course }),
+                });
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Failed to fetch payment history.');
+                }
+                
+                const payments = data.data;
+
+                if (payments.length === 0) {
+                    alert('No payment history found for this department.');
+                    return;
+                }
+
+                const headers = ['Student Name', 'College ID', 'Receipt ID', 'Payment Date', 'Amount', 'Description', 'Academic Year'];
+                const csvRows = [headers.join(',')];
+
+                for (const p of payments) {
+                    const sanitizedDescription = `"${String(p.description || '').replace(/"/g, '""')}"`;
+                    const sanitizedYear = `"${p.academicYearDisplay}"`;
+                    
+                    const row = [
+                        p.full_name, p.college_id, p.receipt_id, p.date, p.amount,
+                        sanitizedDescription, sanitizedYear
+                    ];
+                    csvRows.push(row.join(','));
+                }
+
+                const csvString = csvRows.join('\n');
+                const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+                
+                const link = document.createElement("a");
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                const date = new Date().toISOString().slice(0, 10);
+                link.setAttribute("download", `payment-history-${currentUser.course.replace(/ /g, '_')}-${date}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+
+            } catch (error) {
+                console.error("CSV Download Error:", error);
+                alert(`Error generating CSV: ${error.message}`);
+            } finally {
+                downloadBtn.textContent = originalText;
+                downloadBtn.disabled = false;
+            }
+        }
+
+
+        // --- Modal Control & Misc ---
+        function showLogin() {
+            document.getElementById('homepage-section').classList.add('hidden');
+            document.getElementById('login-section').classList.remove('hidden');
+        }
+        const openModal = (id) => document.getElementById(id).classList.remove('hidden');
+        const closeModal = (id) => document.getElementById(id).classList.add('hidden');
+        function openSignupModal() { openModal('signup-modal'); document.getElementById('signup-error').classList.add('hidden'); }
+        function closeSignupModal() { closeModal('signup-modal'); }
+        function openForgotPasswordModal() { openModal('forgot-password-modal'); }
+        function closeForgotPasswordModal() { closeModal('forgot-password-modal'); }
+        function openChangeAdminCredentialsModal() { openModal('change-admin-credentials-modal'); }
+        function closeChangeAdminCredentialsModal() { closeModal('change-admin-credentials-modal'); }
+        function openChangeMHCredentialsModal() { openModal('change-mh-credentials-modal'); }
+        function closeChangeMHCredentialsModal() { closeModal('change-mh-credentials-modal'); }
+        function openChangeDeptCredentialsModal() { openModal('change-dept-credentials-modal'); }
+        function closeChangeDeptCredentialsModal() { closeModal('change-dept-credentials-modal'); }
+        function openOtpResetModal(collegeId) { document.getElementById('reset-college-id').value = collegeId; openModal('otp-reset-modal'); }
+        function closeOtpResetModal() { closeModal('otp-reset-modal'); }
+        function openMhDownloadModal() {
+            const selector = document.getElementById('mh-report-dept-selector');
+            selector.innerHTML = ''; 
+            DEPARTMENT_LIST.forEach(dept => {
+                const option = `<option value="${dept.id}">${dept.name}</option>`;
+                selector.insertAdjacentHTML('beforeend', option);
+            });
+            openModal('mh-download-report-modal');
+        }
+        function closeMhDownloadModal() { closeModal('mh-download-report-modal'); }
+        
+        function openEditPaymentModal(paymentId, studentId, paymentType, amount, year) {
+            document.getElementById('edit-payment-id').value = paymentId;
+            document.getElementById('edit-original-student-id').value = studentId;
+            document.getElementById('edit-student-id').value = studentId;
+            document.getElementById('edit-original-amount').value = amount;
+            document.getElementById('edit-amount').value = amount;
+            document.getElementById('edit-original-year').value = year;
+
+            const typeSelector = document.getElementById('edit-payment-type');
+            typeSelector.innerHTML = '';
+            ALL_FEE_TYPES.forEach(type => {
+                const selected = type === paymentType ? 'selected' : '';
+                typeSelector.insertAdjacentHTML('beforeend', `<option value="${type}" ${selected}>${type}</option>`);
+            });
+
+            document.getElementById('edit-payment-error').classList.add('hidden');
+            openModal('edit-payment-modal');
+        }
+
+        function closeEditPaymentModal() {
+            closeModal('edit-payment-modal');
+        }
+
+        function openUpdateDuesModal(collegeId) {
+            if (!currentStudentDataCache) return;
+            document.getElementById('update-student-id').value = collegeId;
+            const yearSelector = document.getElementById('update-academic-year');
+            yearSelector.value = currentStudentDataCache.currentAcademicYear || 1;
+            populateFeeEditor(yearSelector.value);
+            yearSelector.onchange = () => populateFeeEditor(yearSelector.value);
+            document.getElementById('update-amount-paid').value = '0';
+            document.getElementById('update-payment-type').value = '';
+            document.getElementById('update-dues-error').classList.add('hidden');
+            toggleFeeEditor(true); // MODIFICATION: Ensure editor is enabled when modal opens
+            openModal('update-dues-modal');
+        }
+        function populateFeeEditor(year) {
+            const editor = document.getElementById('fee-structure-editor');
+            editor.innerHTML = '';
+            const yearFeeData = currentStudentDataCache.detailedSummary[year] || [];
+            ALL_FEE_TYPES.forEach(feeType => {
+                const feeData = yearFeeData.find(f => f.feeType === feeType);
+                const amountDue = feeData ? feeData.amountDue : 0;
+                const inputGroup = `<div class="fee-input-group flex items-center justify-between"><label for="fee-${feeType.replace(/\s+/g, '-')}" class="text-sm text-gray-800">${feeType}</label><input type="number" id="fee-${feeType.replace(/\s+/g, '-')}" value="${amountDue}" min="0" class="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></div>`;
+                editor.insertAdjacentHTML('beforeend', inputGroup);
+            });
+        }
+        function closeUpdateDuesModal() { closeModal('update-dues-modal'); }
+        
+        // MODIFICATION START: New function to toggle fee editor state
+        function toggleFeeEditor(isEditing) {
+            const editor = document.getElementById('fee-structure-editor');
+            const inputs = editor.querySelectorAll('input');
+            const saveBtn = document.getElementById('save-fee-structure-btn');
+            const editBtn = document.getElementById('edit-fee-structure-btn');
+
+            inputs.forEach(input => {
+                input.disabled = !isEditing;
+            });
+
+            saveBtn.classList.toggle('hidden', !isEditing);
+            editBtn.classList.toggle('hidden', isEditing);
+        }
+        // MODIFICATION END
+
+        function downloadReceipt(receiptId) { const url = `${API_URL}/api/receipt/${receiptId}`; window.open(url, '_blank'); }
+        function generateAllReceipts() { alert("This feature would generate a consolidated PDF of all receipts for the student."); }
+        function getOrdinalSuffix(i) {
+            const j = i % 10, k = i % 100;
+            if (j === 1 && k !== 11) return "st";
+            if (j === 2 && k !== 12) return "nd";
+            if (j === 3 && k !== 13) return "rd";
+            return "th";
+        }
+        async function handleChangeAdminCredentials(event) {
+            event.preventDefault();
+            const errorDiv = document.getElementById('change-admin-error');
+            errorDiv.classList.add('hidden');
+            showSpinner('change-admin-btn-text', 'change-admin-spinner');
+            const currentUsername = document.getElementById('current-admin-username').value;
+            const currentPassword = document.getElementById('current-admin-password').value;
+            const newUsername = document.getElementById('new-admin-username').value.trim();
+            const newPassword = document.getElementById('new-admin-password').value;
+            const confirmNewPassword = document.getElementById('confirm-new-admin-password').value;
+            if (newPassword !== confirmNewPassword) {
+                errorDiv.textContent = "New passwords do not match.";
+                errorDiv.classList.remove('hidden');
+                hideSpinner('change-admin-btn-text', 'change-admin-spinner', 'Update Credentials');
+                return;
+            }
+            try {
+                const response = await fetch(`${API_URL}/api/change-credentials`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ currentUsername, currentPassword, newUsername, newPassword, roleToChange: 'admin' }),
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Failed to update credentials.');
+                alert(data.message);
+                logout();
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.classList.remove('hidden');
+            } finally {
+                hideSpinner('change-admin-btn-text', 'change-admin-spinner', 'Update Credentials');
+            }
+        }
+        async function handleChangeMHCredentials(event) {
+            event.preventDefault();
+            const errorDiv = document.getElementById('change-mh-error');
+            errorDiv.classList.add('hidden');
+            showSpinner('change-mh-btn-text', 'change-mh-spinner');
+            const currentUsername = document.getElementById('current-mh-username').value;
+            const currentPassword = document.getElementById('current-mh-password').value;
+            const newUsername = document.getElementById('new-mh-username').value.trim();
+            const newPassword = document.getElementById('new-mh-password').value;
+            const confirmNewPassword = document.getElementById('confirm-new-mh-password').value;
+            if (newPassword !== confirmNewPassword) {
+                errorDiv.textContent = "New passwords do not match.";
+                errorDiv.classList.remove('hidden');
+                hideSpinner('change-mh-btn-text', 'change-mh-spinner', 'Update Credentials');
+                return;
+            }
+            try {
+                const response = await fetch(`${API_URL}/api/change-credentials`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ currentUsername, currentPassword, newUsername, newPassword, roleToChange: 'management_head' }),
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Failed to update credentials.');
+                alert(data.message);
+                logout();
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.classList.remove('hidden');
+            } finally {
+                hideSpinner('change-mh-btn-text', 'change-mh-spinner', 'Update Credentials');
+            }
+        }
+        async function handleChangeDeptCredentials(event) {
+            event.preventDefault();
+            const errorDiv = document.getElementById('change-dept-error');
+            errorDiv.classList.add('hidden');
+            showSpinner('change-dept-btn-text', 'change-dept-spinner');
+            const currentUsername = document.getElementById('current-dept-username').value;
+            const currentPassword = document.getElementById('current-dept-password').value;
+            const newUsername = document.getElementById('new-dept-username').value.trim();
+            const newPassword = document.getElementById('new-dept-password').value;
+            const confirmNewPassword = document.getElementById('confirm-new-dept-password').value;
+            if (newPassword !== confirmNewPassword) {
+                errorDiv.textContent = "New passwords do not match.";
+                errorDiv.classList.remove('hidden');
+                hideSpinner('change-dept-btn-text', 'change-dept-spinner', 'Update Credentials');
+                return;
+            }
+            try {
+                const response = await fetch(`${API_URL}/api/change-credentials`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ currentUsername, currentPassword, newUsername, newPassword, roleToChange: 'department' }),
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Failed to update credentials.');
+                alert(data.message);
+                logout();
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.classList.remove('hidden');
+            } finally {
+                hideSpinner('change-dept-btn-text', 'change-dept-spinner', 'Update Credentials');
+            }
+        }
+        
+        async function checkLoginStateOnLoad() {
+            const storedUser = localStorage.getItem('currentUser');
+            
+            const homepage = document.getElementById('homepage-section');
+            const loginPage = document.getElementById('login-section');
+            const dashboardPage = document.getElementById('dashboard-section');
+
+            if (storedUser) {
+                try {
+                    currentUser = JSON.parse(storedUser);
+                    homepage.classList.add('hidden');
+                    loginPage.classList.add('hidden');
+                    dashboardPage.classList.remove('hidden');
+                    await updateDashboardUI();
+                } catch (e) {
+                    console.error("Failed to parse stored user data:", e);
+                    localStorage.removeItem('currentUser');
+                    homepage.classList.remove('hidden');
+                    loginPage.classList.add('hidden');
+                    dashboardPage.classList.add('hidden');
+                }
+            } else {
+                homepage.classList.remove('hidden');
+                loginPage.classList.add('hidden');
+                dashboardPage.classList.add('hidden');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkLoginStateOnLoad();
+
+            document.getElementById('transaction-date').valueAsDate = new Date();
+            
+            // MODIFICATION 2: Updated event listener
+            document.getElementById('mh-get-data-btn').addEventListener('click', async () => {
+                const statsContainer = document.getElementById('mh-detailed-stats-container');
+                statsContainer.classList.add('hidden');
+
+                const year = document.getElementById('mh-year-select').value;
+                const month = document.getElementById('mh-month-select').value;
+                const day = document.getElementById('mh-day-select').value;
+
+                let startDate, endDate;
+
+                if (day === 'all') {
+                    startDate = new Date(year, month - 1, 1);
+                    endDate = new Date(year, month, 0);
+                } else {
+                    startDate = new Date(year, month - 1, day);
+                    endDate = new Date(year, month - 1, day);
+                }
+                
+                const startDateString = startDate.toLocaleDateString('en-CA');
+                const endDateString = endDate.toLocaleDateString('en-CA');
+
+                await fetchAllTransactions(); 
+                renderManagementHeadDashboard(startDateString, endDateString);
+                
+                statsContainer.classList.remove('hidden');
+            });
+            
+            document.getElementById('login-password').addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    document.querySelector('#login-section button[type="submit"]').click();
+                }
+            });
+
+            document.getElementById('student-search-input').addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    searchStudents();
+                }
+            });
+
+            document.getElementById('mh-student-search-input').addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    searchStudents(true);
+                }
+            });
+        });
+</script>
+</body>
+</html>
